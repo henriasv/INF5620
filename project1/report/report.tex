@@ -1,0 +1,44 @@
+\documentclass[a4paper, 10pt]{article}
+\usepackage{amsmath}
+\title{Project 1 - INF5620}
+\author{Henrik Andersen Sveinsson}
+
+
+\begin{document}
+\maketitle
+
+\section{Setting up the differential equation}
+Beginning with newtons second law for an object falling  with quadratic  air resistance and a source term for verification.
+\begin{equation}
+	\sum F = m\ddot{x}
+\end{equation}
+
+% note to self: What is a source term, which is given in the exercise
+
+\begin{equation}
+	mg - b\dot{x}|\dot{x}| + F_s = m\ddot{x}
+\end{equation}
+Or, written in terms of velocity.
+\begin{equation}
+	mg- bv|v| + F_s = m\dot{v}
+\end{equation}
+\begin{equation}
+	\dot{v} = g - \frac{b}{m}v|v| + F_s = f(t, v)
+\end{equation}
+
+\section{Setting up the discrete equation} % (fold)
+\label{sec:setting_up_the_discrete_equation}
+
+We choose the Crank-Nicholson scheme for discretizing the equation. 
+\begin{equation}
+	[D_t v = f(t, \bar{v}^{t, \theta})]^{n+\frac{1}{2}}
+\end{equation}
+To linearize the equation, we decide to take the geometric average of the velocities in $|v|v$, such that:
+\begin{equation}
+	\frac{v^{n+1} - v^{n}}{\Delta t} = g - \frac{b}{m}|v^n|v^{n+1} + F_s
+\end{equation}
+This gives a linear equation in $v^{n+1}$, which makes it easier to handle with an implicit solver. Solving this equation for $v^{n+1}$ gives:
+\begin{equation}
+	v^{n+1} = \frac{v^n + (g +F_s)\Delta t}{1+\frac{b}{m}|v^n|\Delta t}
+\end{equation}
+\end{document}
