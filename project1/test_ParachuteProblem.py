@@ -1,56 +1,82 @@
 # test module for ParachuteProblem
 from ParachuteProblem import ParachuteProblem 
 import numpy as np
+import nose.tools as nt
 
 def test_ParachuteProblem_solve():
-	import nose.tools as nt
+	
 	T	=	10.0
-	dt 	= 	0.001
-	g 	= 	9.81
-	b 	= 	1.26
+	dt 	= 	0.01
 	m 	= 	85.0
-	I 	= 	0
-	source_function = source_function_def(m, b, g)
-	parachuter = ParachuteProblem(m, b, g, source_function)
+	g 	= 	9.81
+	C_D =	1.2
+	A 	=	0.5 
+	V 	=	0.2 
+	rho =	1.03 
+	I 	=	10
+	A_sf= 	2.0 # slope of manufactured solution
+	B_sf= 	I
+	
+	parachuter 		= ParachuteProblem(m, g, C_D, A, V, rho, I)
+	source_function = source_function_discrete(parachuter.a, parachuter.b, A_sf, B_sf)
+	parachuter.set_source_function(source_function)
 	parachuter.set_initial_condition(I)
+
 	t, u	= 	parachuter.solve(T, dt)
-	diff 	= 	(u-t)
+	diff 	= 	A_sf*t + B_sf - u
 	diff 	= 	max(abs(diff))
-	print diff
-	nt.assert_almost_equal(diff, 0, delta=1e-13)
+	print "Largest error in array %g" % diff
+	nt.assert_almost_equal(diff, 0, delta=1e-12)
 
 def test_ParachuteProblem_convergence_rate():
-	T 		= 	1000
-	dt_s 	= 	[0.01, 0.1, 1, 10, 100]
-	g 		= 	9.81
-	b 		= 	10.0
+	T 		= 	1
+	dt_s 	= 	[10**i for i in -np.asarray(range(1, 5))]
 	m 		= 	85.0
-	I 		= 	0
-
-	source_function = source_function_def(m, b, g)
-	parachuter 		= ParachuteProblem(m, b, g, source_function)
-	parachuter.set_initial_condition(I)
-	errors 			= np.zeros(len(dt_s)) # Using L2 norm for errors
+	g 		= 	9.81
+	C_D 	=	1.2
+	A 		=	0.5 
+	V 		=	0.2 
+	rho 	=	1.03 
+	I 		=	10
+	A_sf 	= 	2.0 # slope of manufactured solution
+	B_sf 	= 	I
 	
-	i = 0
+	parachuter 		= ParachuteProblem(m, g, C_D, A, V, rho, I)
+	source_function = source_function_continous(parachuter.a, parachuter.b, A_sf, B_sf)
+	parachuter.set_source_function(source_function)
+	parachuter.set_initial_condition(I)
+
+	errors = []
 	for dt in dt_s:
 		t, u 		= 	parachuter.solve(T, dt)
-		e 			= 	t-u
-		l2err 		=	np.sqrt(dt*np.sum(e**2))
-		errors[i]	= 	l2err
-		i += 1
-	
-	import matplotlib.pyplot as plt
-	plt.figure()
-	plt.loglog(dt_s, errors)
-	plt.show()
+		e 			= 	A_sf*t + B_sf -u
+		l2err 		=	np.sqrt(dt*np.sum(np.power(e,2)))
+		errors.append(l2err)
 
+	errors = np.asarray(errors)/T
 
-class source_function_def:
-	def __init__(self, m, b, g):
-		self.g = g
+	p = np.polyfit(np.log10(dt_s), np.log10(errors), 1)
+	print "Order of convergence is %g" % p[0]
+	nt.assert_almost_equal(p[0], 2, delta=0.1)
+
+class source_function_discrete:
+	def __init__(self, a, b, A, B):
+		self.a = a
 		self.b = b
-		self.m = m
+		self.A = A
+		self.B = B
 
 	def __call__(self, t, dt):
-		return self.b/self.m*t*(t+dt) - self.g + 1
+		a = self.a; b = self.b; A = self.A; B = self.B
+		return a*abs(A*t+B)*(A*(t+dt)+B) - b + A 
+
+class source_function_continous:
+	def __init__(self, a, b, A, B):
+		self.a = a
+		self.b = b
+		self.A = A
+		self.B = B
+
+	def __call__(self, t, dt):
+		a = self.a; b = self.b; A = self.A; B = self.B
+		return a*abs(A*(t+0.5*dt)+B)*(A*(t+0.5*dt)+B) - b + A 

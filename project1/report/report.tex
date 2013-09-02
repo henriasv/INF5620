@@ -69,12 +69,12 @@ The positgive direction of motion is towards ground.
 Now, a few manipulations to get the equation more suited for numerical treatment:
 We introduce the density $\rho_b$ of the falling body, so that $m = \rho_b V$. Dividing by the mass, ans inserting $\rho_b V$ gives:
 \begin{equation}
-	\dot{v}(t, v) = -\frac{1}{2} C_D \frac{\rho A}{\rho_b V}|v|v + g\left( \frac{\rho}{\rho_b}-1 \right) 
+	\dot{v}(t, v) = -\frac{1}{2} C_D \frac{\rho A}{\rho_b V}|v|v + g\left( 1- \frac{\rho}{\rho_b} \right) 
 \end{equation}
 We now define 
 $a = \frac{1}{2} C_D \frac{\rho A}{\rho_b V}$ 
 and 
-$b = g\left( \frac{\rho}{\rho_b} - 1\right)$, 
+$b = g\left( 1- \frac{\rho}{\rho_b}\right)$, 
 such that the equation to solve numerically is:
 
 \begin{equation}
@@ -96,6 +96,25 @@ Where the source term is supposed to be defined later, and we assume it to be ev
 
 \begin{equation}
 	v^{n+1} = \frac{v^n + (b + f_s(t))\Delta t }{1 + a |v^n| \Delta t}.
+\end{equation}
+
+We now manufacture a linear solution to the problem, $v(t) = At+B$, Where the initial state $v(0) = B$. Inserted into the CN-scheme, this gives:
+\begin{equation}
+	A = -a|At+B|(A(t+\Delta t) + B) + b+ f_s(t_{n+\frac{1}{2}})
+\end{equation}
+Which gives:
+\begin{equation}
+	f_s(t_{n+\frac{1}{2}}) = a|At+B|(A(t+\Delta t) + B) - b + A
+\end{equation}
+A test for this manufactured solution is made.
+
+To check the convergence rate, we construct a solution to the continous problem, still on the form $At+ B$.
+\begin{equation}
+	D[At+B] = -a|At+B|(At+B) + b + f_s(t)
+\end{equation}
+Such that:
+\begin{equation}
+	$f_s(t) = a|At+B|(At+B) - b + A$
 \end{equation}
 
 \end{document}
