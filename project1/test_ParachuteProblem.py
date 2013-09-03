@@ -4,7 +4,7 @@ import numpy as np
 import nose.tools as nt
 
 def test_ParachuteProblem_solve():
-	
+	print "Testing largest deviation from exact solution of discrete equations."
 	T	=	10.0
 	dt 	= 	0.01
 	m 	= 	85.0
@@ -29,6 +29,7 @@ def test_ParachuteProblem_solve():
 	nt.assert_almost_equal(diff, 0, delta=1e-12)
 
 def test_ParachuteProblem_convergence_rate():
+	print "Testing convergence rate for parachute solver"
 	T 		= 	1
 	dt_s 	= 	[10**i for i in -np.asarray(range(1, 5))]
 	m 		= 	85.0
@@ -56,7 +57,8 @@ def test_ParachuteProblem_convergence_rate():
 	errors = np.asarray(errors)/T
 
 	p = np.polyfit(np.log10(dt_s), np.log10(errors), 1)
-	print "Order of convergence is %g" % p[0]
+	print "Order of convergence is %g, " % p[0]
+	print "based on linear manufactured solution. \n Timesteps tested: ", dt_s
 	nt.assert_almost_equal(p[0], 2, delta=0.1)
 
 class source_function_discrete:
@@ -68,15 +70,14 @@ class source_function_discrete:
 
 	def __call__(self, t, dt):
 		a = self.a; b = self.b; A = self.A; B = self.B
+
 		return a*abs(A*t+B)*(A*(t+dt)+B) - b + A 
 
 class source_function_continous:
 	def __init__(self, a, b, A, B):
-		self.a = a
-		self.b = b
-		self.A = A
-		self.B = B
+		self.a = a; self.b = b; self.A = A; self.B = B
 
 	def __call__(self, t, dt):
 		a = self.a; b = self.b; A = self.A; B = self.B
+
 		return a*abs(A*(t+0.5*dt)+B)*(A*(t+0.5*dt)+B) - b + A 
