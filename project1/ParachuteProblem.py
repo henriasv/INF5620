@@ -31,18 +31,31 @@ class ParachuteProblem:
 	def set_source_function(self, Fs):
 		self.Fs = Fs
 
-	def solve(self, T, dt, plot=False):
+	def solve(self, T, dt, t0 = None, u0 = None, plot=False):
 		dt = float(dt)
 		Nt = int(round(T/dt))
+		T0 = 0
 		T = Nt*dt
 		u = np.zeros(Nt+1)
+
+		if not u0==None:
+			self.I 	= 	u0[len(u0)-1]
+			T0 		= 	t0[len(t0)-1]
+
 		u[0] = self.I;
-		t = np.linspace(0, T, Nt+1)
+		t = np.linspace(T0, T+T0, Nt+1)
 
 		a = self.a; b = self.b; Fs = self.Fs;
 		for n in xrange(Nt):
 			u[n+1] = (u[n] + (b + Fs(t[n], dt))*dt)/(1+a*abs(u[n])*dt)
 		
+		
+		if not u0==None:
+			t0 	= 	np.asarray(t0); u0 = np.asarray(u0)
+			t 	= 	np.concatenate((t0, t[1::]))
+			u 	= 	np.concatenate((u0, u[1::]))
+
+
 		if plot:
 			self.plot(t, u)
 		
