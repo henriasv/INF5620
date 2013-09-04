@@ -2,6 +2,7 @@
 from ParachuteProblem import ParachuteProblem 
 import numpy as np
 import nose.tools as nt
+import matplotlib.pyplot as plt
 
 def test_ParachuteProblem_solve():
 	print "Testing largest deviation from exact solution of discrete equations."
@@ -55,6 +56,12 @@ def test_ParachuteProblem_convergence_rate():
 		errors.append(l2err)
 
 	errors = np.asarray(errors)/T
+	plt.plot(np.log10(dt_s), np.log10(errors))
+	plt.xlabel('log10(dt)') 
+	plt.ylabel('log10(L_2 norm of error)') 
+	plt.title('Convergence towards exact solution')
+
+	plt.savefig('report/figures/convergence.pdf')
 
 	p = np.polyfit(np.log10(dt_s), np.log10(errors), 1)
 	print "Order of convergence is %g, " % p[0]

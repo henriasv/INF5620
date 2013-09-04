@@ -1,5 +1,6 @@
 \documentclass[a4paper, 10pt]{article}
 \usepackage{amsmath}
+\usepackage{graphicx}
 \title{Project 1 - INF5620}
 \author{Henrik Andersen Sveinsson}
 
@@ -114,7 +115,15 @@ To check the convergence rate, we construct a solution to the continous problem,
 \end{equation}
 Such that:
 \begin{equation}
-	$f_s(t) = a|At+B|(At+B) - b + A$
+	f_s(t) = a|At+B|(At+B) - b + A
 \end{equation}
+
+Using this source term, the convergence is confirmed to be quadratic.
+\begin{figure}
+\centering
+	\includegraphics[width=0.8\textwidth]{figures/convergence.pdf}
+	\caption{Error estimate shows second order convergence in $\Delta t$}
+\end{figure}
+
 
 \end{document}
