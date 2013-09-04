@@ -1,0 +1,7 @@
+Usage:
+
+>> python skydiving.py 
+executes a simulation of a full skydive with release of parachute.
+
+>> nosetests -s 
+tests the ParachuteProblem module

@@ -53,7 +53,7 @@ Checking whether a linear solution will solve the discrete equation without the 
 	F_s = \frac{b}{m} t(t+\Delta t) - g + 1 
 \end{equation}
 
-With this source term, $v(t) = t$ is the exact soultion to the discrete equation. Inserting this source term into the solver should give a solution that holds up to machine precision. This holds, and a nose test with a tolerance of $1e-13$ is implemented.
+Since the source term is non-zero, we conclude that a linear function is not a solution to the disctrete equations. With this source term, $v(t) = t$ is the exact soultion to the discrete equation. Inserting this source term into the solver should give a solution that holds up to machine precision. 
 
 \section{Improved force expression for parachuter}
 A simple force model for a parachuter at high reynolds numbers is the following.
