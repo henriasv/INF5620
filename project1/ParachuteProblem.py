@@ -1,5 +1,7 @@
 import numpy as np 
 
+
+# Class for holding and solving a parachute problem
 class ParachuteProblem:
 	def __init__(	self, 
 					m 	= 	85.0, 
@@ -97,3 +99,6 @@ class ParachuteProblem:
 
 	def gravity_force(self, t):
 		return self.m*self.g + 0*t
+
+
+
