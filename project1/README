@@ -1,5 +1,6 @@
 Usage:
 
+To run example usage of ParachuteProblem class
 >> python skydiving.py "skydiver_full_dive"
 executes a simulation of a full skydive with release of parachute.
 

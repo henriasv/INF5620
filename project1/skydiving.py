@@ -1,8 +1,3 @@
-# script to wrap in cmd args
-#import subprocess
-
-#subprocess.call(['python', 'main.py', '100.0', '9.81', '1.2', '0.5', '0.2', '1.03', '-10.0','10', '0.001'])
-#subprocess.call(['python', 'main.py', 'skydiver_full_dive'])
 import numpy as np
 import nose.tools as nt
 import matplotlib.pyplot as plt
@@ -208,6 +203,9 @@ usageString = "Usage: \n Either: >> python skydiving.py <skydiver_free_fall/skyd
 
 # Take command line args; Should be called if __name__=="__main__"
 def read_command_line():
+	"""
+		Read parameters from command line
+	"""
 	if (len(sys.argv) == 10):
 		m 	= 	float(sys.argv[1])
 		g 	= 	float(sys.argv[2])
@@ -233,7 +231,7 @@ def read_command_line():
 
 class TestCases:
 	"""
-		Class with several hardcoded usages of the ParachuteProblem class. 
+		Example usages of ParachuteProblem class
 	"""
 	def __init__(self):
 		self.m = 100
