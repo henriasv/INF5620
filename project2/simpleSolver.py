@@ -1,35 +1,43 @@
 # Simple solver for 2D wave equation
 
 from numpy import asarray, zeros, ones, random, meshgrid, linspace, exp
+import numpy as np
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
-from mayavi import mlab
+
 
 plt.ion()
 
 
 
 def update_ghost_cells(u):
-	Nx = len(u[:, 0]);
-	Ny = len(u[0, :]);
 	u[:,0] 		= u[:,2]
-	u[:,Ny-1]	= u[:,Ny-3]
+	u[:,-1]	= u[:,-3]
 	u[0,:]		= u[2,:]
-	u[Nx-1,:]	= u[Nx-3,:]
+	u[-1,:]	= u[-3,:]
 
+def advance_first_step(u0, u1, q, V, b, Nx, Ny, dx, dt):
+	u1[1:Nx+1, 1:Ny+1] = \
+	dt**2/(4*dx**2)*( \
+  	q[2::, 1:Ny+1] * ( u0[2::,1:Ny+1] - u0[1:Nx+1, 1:Ny+1] ) \
+	+ q[1:Nx+1, 2::] * ( u0[1:Nx+1,2::] - u0[1:Nx+1,1:Ny+1] ) \
+	+ q[1:Nx+1, 0:Nx] * ( u0[1:Nx+1,0:Nx] - u0[1:Nx+1,1:Ny+1] ) \
+	+ q[1:Nx+1, 1:Ny+1] * ( u0[2::,1:Ny+1] + u0[1:Nx+1, 2::] + u0[1:Nx+1,0:Ny] -4 * u0[1:Nx+1,1:Ny+1] + u0[0:Nx,1:Ny+1]) \
+	+ q[0:Ny,1:Ny+1] * (-u0[1:Nx+1,1:Ny+1]+u0[0:Nx,1:Ny+1])) \
+	+ u0[1:Nx+1,1:Ny+1] + V[1:Nx+1, 1:Ny+1] *dt - 2*b*V[1:Nx+1,1:Ny+1]*dt**2
 
 Nx = 100
 Ny = 100
 
 dx = 0.1
 dt = 0.04
-T = 100
+T = 10
 
-Lx = Nx*dx
-Ly = Ny*dx
+Lx = float(Nx*dx)
+Ly = float(Ny*dx)
 
-q0 = 0.8 # Mean value of q
-b = 0.01;
+q0 = 1.0 # Mean value of q
+b = 0.1;
 
 u0 = ones((Nx+2, Ny+2))
 um1 = ones((Nx+2, Ny+2))
@@ -41,15 +49,28 @@ q = q0*ones((Nx+2, Ny+2))
 # Create figure for plotting
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
-X, Y = meshgrid(linspace(0, Lx, Nx), linspace(0, Ly, Ny));
-u0[1:Nx+1, 1:Ny+1] = ones((Nx, Ny))+exp(-X**2-Y**2);
-um1[:, :] = u0[:, :]-0.01;
-vmin_ = u0.min()
-vmax_ = u0.max()
-myPlot = ax.plot_surface(X, Y, u1[1:Nx+1,1:Ny+1])
-ax.autoscale_view(tight=None, scalex=True, scaley=True, scalez=False)
 
+# Set initial condition
+X, Y = meshgrid(linspace(0,Lx, Nx+2), linspace(0,Ly, Ny+2))
+I = 0.1*ones((Nx+2, Ny+2))+exp(-(X-Lx/2)**2-(Y-Ly/2)**2)
+V = zeros((Nx+2, Ny+2))
+um1[:, :] = I[:, :]
+advance_first_step(um1, u0, q, V, b, Nx, Ny, dx, dt)
+#u0[:, :] = um1[:, :]
+vmin_ = um1.min()
+vmax_ = um1.max()
+
+update_ghost_cells(u1)
+update_ghost_cells(u0)
+update_ghost_cells(um1)
+
+myPlot = ax.plot_wireframe(X, Y, u0)
+ax.set_zlim3d(vmin_, vmax_)
+ax.autoscale_view(tight=None, scalex=True, scaley=True, scalez=False)
+#from mayavi import mlab
+#s = mlab.surf(u1, warp_scale="auto")
 # Timeloop
+raw_input("press enter")
 for i in range(int(float(T)/dt)):
 	u1[1:Nx+1, 1:Ny+1] = \
 	dt**2/(dx**2*(dt*b+2))*( \
@@ -57,29 +78,36 @@ for i in range(int(float(T)/dt)):
 	+ q[1:Nx+1, 2::] * ( u0[1:Nx+1,2::] - u0[1:Nx+1,1:Ny+1] ) \
 	+ q[1:Nx+1, 0:Nx] * ( u0[1:Nx+1,0:Nx] - u0[1:Nx+1,1:Ny+1] ) \
 	+ q[1:Nx+1, 1:Ny+1] * ( u0[2::,1:Ny+1] + u0[1:Nx+1, 2::] + u0[1:Nx+1,0:Ny] -4 * u0[1:Nx+1,1:Ny+1] + u0[0:Nx,1:Ny+1]) \
-	+ q[0:Ny,1:Ny+1] * (-u0[1:Nx+1,1:Ny+1]+u0[0:Nx,1:Ny+1])
-	+ (dx**2)/(dt**2) * ((dt*b-2)*um1[1:Nx+1,1:Ny+1] + 4 * u0[1:Nx+1,1:Ny+1])
+	+ q[0:Ny,1:Ny+1] * (-u0[1:Nx+1,1:Ny+1]+u0[0:Nx,1:Ny+1]) \
+	+ (dx**2)/(dt**2) * ((dt*b-2)*um1[1:Nx+1,1:Ny+1] + 4 * u0[1:Nx+1,1:Ny+1]) \
 	)
-	# Update ghost cells
-	"""
-	u1[:,0] 	= u1[:,2]
-	u1[:,Ny+1]	= u1[:,Ny-1]
-	u1[0,:]		= u1[2,:]
-	u1[Nx+1,:]	= u1[Nx-1,:]
-	"""
+
+	#s.mlab_source.scalars = u1[1:Nx+1,1:Ny+1];
+
 	update_ghost_cells(u1);
+	update_ghost_cells(u0);
 
 	um1[:,:]= u0[:,:]
 	u0[:,:] = u1[:,:]
 
+
 	plt.draw()
 	ax.collections.remove(myPlot)
-	myPlot = ax.plot_surface(X, Y, u1[1:Nx+1,1:Ny+1])
+	myPlot = ax.plot_wireframe(X, Y, u0)
 	ax.set_zlim3d(vmin_, vmax_)
+	#raw_input("press enter")
+	print np.sum(np.sum(u0[1:-2, 1:-2]));
 
 
-plt.show()
-raw_input("press enter")
+
+def advance():
+	a = 1;
+#s = mlab.figure();
+#mlab.pipeline.iso_surface(s);
+
+#s.draw()
+#mlab.show()
+#raw_input("press enter")
 
 # for i in range(Ny+2):
 # 	for j in range(Nx+2):
