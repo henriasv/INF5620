@@ -3,7 +3,10 @@
 from numpy import asarray, zeros, ones, random, meshgrid, linspace, exp
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
+from mayavi import mlab
+
 plt.ion()
+
 
 
 def update_ghost_cells(u):
@@ -13,6 +16,7 @@ def update_ghost_cells(u):
 	u[:,Ny-1]	= u[:,Ny-3]
 	u[0,:]		= u[2,:]
 	u[Nx-1,:]	= u[Nx-3,:]
+
 
 Nx = 100
 Ny = 100
