@@ -4,6 +4,9 @@ from numpy import asarray, zeros, ones, random, meshgrid, linspace
 import matplotlib.pyplot as plt 
 from mpl_toolkits.mplot3d import Axes3D
 plt.ion()
+
+from mayavi import mlab
+
 print "Starting"
 Nx = 100
 Ny = 100
