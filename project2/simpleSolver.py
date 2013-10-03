@@ -31,8 +31,8 @@ def advance_first_step(u0, u1, q, V, b, Nx, Ny, dx, dt):
 Nx = 50
 Ny = 50
 
-dx = 0.025
-dt = 0.01
+dx = 0.04
+dt = 0.02
 T = 20
 
 Lx = float((Nx-1)*dx)
@@ -56,7 +56,7 @@ ax = fig.add_subplot(111, projection='3d')
 X, Y = meshgrid(linspace(-dx,Lx+dx, Nx+2), linspace(-dx,Ly+dx, Ny+2))
 I = 3*exp(-20*((X-Lx/2)**2+(Y-Ly/2)**2))
 I = I-np.mean(I[1:-1,1:-1])
-#I = zeros((Nx+2, Nx+2))
+I = ones((Nx+2, Nx+2))*1.01
 V = zeros((Nx+2, Nx+2))
 #V = 0.3*np.sin(X-Lx/2+Y-Ly/2)
 print "Mean(X) = %.3f" % np.mean(X)
