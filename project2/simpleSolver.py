@@ -11,107 +11,98 @@ plt.ion()
 
 
 def update_ghost_cells(u):
-	u[:,0] 		= u[:,2]
-	u[:,-1]	= u[:,-3]
-	u[0,:]		= u[2,:]
-	u[-1,:]	= u[-3,:]
+	u[1:-1,0] 		= u[1:-1,2]
+	u[1:-1,-1]	= u[1:-1,-3]
+	u[0,1:-1]		= u[2,1:-1]
+	u[-1,1:-1]	= u[-3,1:-1]
 
 def advance_first_step(u0, u1, q, V, b, Nx, Ny, dx, dt):
-	u1[1:Nx+1, 1:Ny+1] = \
+	update_ghost_cells(u0)
+	u1[1:-1, 1:-1] = \
 	dt**2/(4*dx**2)*( \
-  	q[2::, 1:Ny+1] * ( u0[2::,1:Ny+1] - u0[1:Nx+1, 1:Ny+1] ) \
-	+ q[1:Nx+1, 2::] * ( u0[1:Nx+1,2::] - u0[1:Nx+1,1:Ny+1] ) \
-	+ q[1:Nx+1, 0:Nx] * ( u0[1:Nx+1,0:Nx] - u0[1:Nx+1,1:Ny+1] ) \
-	+ q[1:Nx+1, 1:Ny+1] * ( u0[2::,1:Ny+1] + u0[1:Nx+1, 2::] + u0[1:Nx+1,0:Ny] -4 * u0[1:Nx+1,1:Ny+1] + u0[0:Nx,1:Ny+1]) \
-	+ q[0:Ny,1:Ny+1] * (-u0[1:Nx+1,1:Ny+1]+u0[0:Nx,1:Ny+1])) \
-	+ u0[1:Nx+1,1:Ny+1] + V[1:Nx+1, 1:Ny+1] *dt - 2*b*V[1:Nx+1,1:Ny+1]*dt**2
+  	q[2::, 1:-1] * ( u0[2::,1:-1] - u0[1:-1, 1:-1] ) \
+	+ q[1:-1, 2::] * ( u0[1:-1,2::] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 0:-2] * ( u0[1:-1,0:-2] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 1:-1] * ( u0[2::,1:-1] + u0[1:-1, 2::] + u0[1:-1,0:-2] -4 * u0[1:-1,1:-1] + u0[0:-2,1:-1]) \
+	+ q[0:-2,1:-1] * (-u0[1:-1,1:-1]+u0[0:-2,1:-1])) \
+	+ u0[1:-1,1:-1] + V[1:-1, 1:-1] *dt - 0.5*b*V[1:-1,1:-1]*dt**2
+	update_ghost_cells(u1)
 
-Nx = 100
-Ny = 100
+Nx = 50
+Ny = 50
 
-dx = 0.1
-dt = 0.04
-T = 10
+dx = 0.025
+dt = 0.01
+T = 20
 
-Lx = float(Nx*dx)
-Ly = float(Ny*dx)
-
-q0 = 1.0 # Mean value of q
-b = 0.1;
+Lx = float((Nx-1)*dx)
+Ly = float((Ny-1)*dx)
+print "Lx: %.6f, Ly: %.6f" %(Lx, Ly)
+q0 = 3 # Mean value of q
+b =.2;
 
 u0 = ones((Nx+2, Ny+2))
 um1 = ones((Nx+2, Ny+2))
 u1 = zeros((Nx+2, Ny+2))
 
-#q = q0*random.random((Nx+2, Ny+2))
-q = q0*ones((Nx+2, Ny+2))
+q = q0*random.random((Nx+2, Ny+2))
+#q = q0*ones((Nx+2, Ny+2))
 
 # Create figure for plotting
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # Set initial condition
-X, Y = meshgrid(linspace(0,Lx, Nx+2), linspace(0,Ly, Ny+2))
-I = 0.1*ones((Nx+2, Ny+2))+exp(-(X-Lx/2)**2-(Y-Ly/2)**2)
-V = zeros((Nx+2, Ny+2))
-um1[:, :] = I[:, :]
-advance_first_step(um1, u0, q, V, b, Nx, Ny, dx, dt)
-#u0[:, :] = um1[:, :]
-vmin_ = um1.min()
-vmax_ = um1.max()
+X, Y = meshgrid(linspace(-dx,Lx+dx, Nx+2), linspace(-dx,Ly+dx, Ny+2))
+I = 3*exp(-20*((X-Lx/2)**2+(Y-Ly/2)**2))
+I = I-np.mean(I[1:-1,1:-1])
+#I = zeros((Nx+2, Nx+2))
+V = zeros((Nx+2, Nx+2))
+#V = 0.3*np.sin(X-Lx/2+Y-Ly/2)
+print "Mean(X) = %.3f" % np.mean(X)
+print "Sum over initial velocities: %.6f" % np.sum(np.sum(V[1:-1,1:-1])) 
+print "Sum over initial u-values: %.6f" % np.sum(np.sum(I[1:-1,1:-1]))
+um1[:, :] = I[:,:]
 
-update_ghost_cells(u1)
-update_ghost_cells(u0)
-update_ghost_cells(um1)
+
+advance_first_step(um1, u0, q, V, b, Nx, Ny, dx, dt)
+
+
+vmin_ = X.min()
+vmax_ = X.max()
+
+
+
 
 myPlot = ax.plot_wireframe(X, Y, u0)
 ax.set_zlim3d(vmin_, vmax_)
 ax.autoscale_view(tight=None, scalex=True, scaley=True, scalez=False)
-#from mayavi import mlab
-#s = mlab.surf(u1, warp_scale="auto")
-# Timeloop
-raw_input("press enter")
+
 for i in range(int(float(T)/dt)):
-	u1[1:Nx+1, 1:Ny+1] = \
+	u1[1:-1, 1:-1] = \
 	dt**2/(dx**2*(dt*b+2))*( \
-  	q[2::, 1:Ny+1] * ( u0[2::,1:Ny+1] - u0[1:Nx+1, 1:Ny+1] ) \
-	+ q[1:Nx+1, 2::] * ( u0[1:Nx+1,2::] - u0[1:Nx+1,1:Ny+1] ) \
-	+ q[1:Nx+1, 0:Nx] * ( u0[1:Nx+1,0:Nx] - u0[1:Nx+1,1:Ny+1] ) \
-	+ q[1:Nx+1, 1:Ny+1] * ( u0[2::,1:Ny+1] + u0[1:Nx+1, 2::] + u0[1:Nx+1,0:Ny] -4 * u0[1:Nx+1,1:Ny+1] + u0[0:Nx,1:Ny+1]) \
-	+ q[0:Ny,1:Ny+1] * (-u0[1:Nx+1,1:Ny+1]+u0[0:Nx,1:Ny+1]) \
-	+ (dx**2)/(dt**2) * ((dt*b-2)*um1[1:Nx+1,1:Ny+1] + 4 * u0[1:Nx+1,1:Ny+1]) \
-	)
-
-	#s.mlab_source.scalars = u1[1:Nx+1,1:Ny+1];
-
-	update_ghost_cells(u1);
-	update_ghost_cells(u0);
+  	q[2::, 1:-1] * ( u0[2::,1:-1] - u0[1:-1, 1:-1] ) \
+	+ q[1:-1, 2::] * ( u0[1:-1,2::] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 0:-2] * ( u0[1:-1,0:-2] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 1:-1] * ( u0[2::,1:-1] + u0[1:-1, 2::] + u0[1:-1,0:-2] - 4 * u0[1:-1,1:-1] + u0[0:-2,1:-1]) \
+	+ q[0:-2,1:-1] * (-u0[1:-1,1:-1]+u0[0:-2,1:-1])) \
+	+ (1.0/(b*dt +2)) * ((dt*b-2)*um1[1:-1,1:-1] + 4 * u0[1:-1,1:-1])
 
 	um1[:,:]= u0[:,:]
 	u0[:,:] = u1[:,:]
 
+	update_ghost_cells(u0);
 
 	plt.draw()
 	ax.collections.remove(myPlot)
 	myPlot = ax.plot_wireframe(X, Y, u0)
 	ax.set_zlim3d(vmin_, vmax_)
-	#raw_input("press enter")
-	print np.sum(np.sum(u0[1:-2, 1:-2]));
+	
+	print np.sum(np.sum(u0[1:-1, 1:-1]));
 
-
+raw_input("press enter")
 
 def advance():
 	a = 1;
-#s = mlab.figure();
-#mlab.pipeline.iso_surface(s);
-
-#s.draw()
-#mlab.show()
-#raw_input("press enter")
-
-# for i in range(Ny+2):
-# 	for j in range(Nx+2):
-# 		print "%5.2f" % u1[i, j],
-# 	print 
 
 
