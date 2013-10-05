@@ -94,7 +94,7 @@ def solver(f_I, f_V, f, f_q, b, L, N, dt, T, user_action=None):
 	advance_first_step(um1, u0, q, V, b, dx, dt)
 	user_action.initialize(X, Y, u0)
 	for i in range(int(float(T)/dt)):
-		advance(um1, u0, u1, q, b, dx, dt)
+		advance_mistake_2(um1, u0, u1, q, b, dx, dt)
 
 		if user_action:
 			user_action(u0)
@@ -115,21 +115,7 @@ def advance(um1, u0, u1, q, b, dx, dt):
 
 	update_ghost_points(u0);
 
-if __name__=="__main__":
-	N = 100
-	L = 1.1
-	T = 10
-	dx = float(L)/(N-1)
-	dt = dx/2.5
-	q = ones((N, N))*0.8
-	f_I = lambda X, Y, L: 3*exp(-100*((X-L/2)**2+(Y-L/2)**2))
-	f_V = lambda X, Y, L: zeros(np.shape(X))
-	f = lambda x: zeros(np.shape(X))
-	q = lambda X, Y, L: ones(np.shape(X))
-	b = 1.2
 
-	myPlotter = wave_plotter()
-	solver(f_I, f_V, f, q, b, L, N, dt, T, user_action = myPlotter)
 
 
 def test_constant_solution():
@@ -145,6 +131,65 @@ def test_constant_solution():
 	f = lambda x: zeros(np.shape(X))
 	b = 0
 	tester = user_action_test_constant(constant=c)
-	solver(f_I, f_V, f, q, b, L, N, dt, T, user_action = tester)
+	solver(f_I, f_V, f, q, b, L, N, dt, T, user_action = tester)	
 
+def advance_mistake_1(um1, u0, u1, q, b, dx, dt):
+	"""
+	(dt*b+2) left out in the first fraction
+	Passes  constant test
+	"""
+	u1[1:-1, 1:-1] = \
+	dt**2/(dx**2)*( \
+  	q[2::, 1:-1] * ( u0[2::,1:-1] - u0[1:-1, 1:-1] ) \
+	+ q[1:-1, 2::] * ( u0[1:-1,2::] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 0:-2] * ( u0[1:-1,0:-2] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 1:-1] * ( u0[2::,1:-1] + u0[1:-1, 2::] + u0[1:-1,0:-2] - 4 * u0[1:-1,1:-1] + u0[0:-2,1:-1]) \
+	+ q[0:-2,1:-1] * (-u0[1:-1,1:-1]+u0[0:-2,1:-1])) \
+	+ (1.0/(b*dt +2)) * ((dt*b-2)*um1[1:-1,1:-1] + 4 * u0[1:-1,1:-1])
 
+	um1[:,:]= u0[:,:]
+	u0[:,:] = u1[:,:]
+
+	update_ghost_points(u0);
+
+def advance_mistake_2(um1, u0, u1, q, b, dx, dt):
+	"""
+	Wrong indices on u1
+	Fails constant test, but passes for c = 0
+	"""
+	u1[0:-2, 0:-2] = \
+	dt**2/(dx**2*(dt*b+2))*( \
+  	q[2::, 1:-1] * ( u0[2::,1:-1] - u0[1:-1, 1:-1] ) \
+	+ q[1:-1, 2::] * ( u0[1:-1,2::] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 0:-2] * ( u0[1:-1,0:-2] - u0[1:-1,1:-1] ) \
+	+ q[1:-1, 1:-1] * ( u0[2::,1:-1] + u0[1:-1, 2::] + u0[1:-1,0:-2] - 4 * u0[1:-1,1:-1] + u0[0:-2,1:-1]) \
+	+ q[0:-2,1:-1] * (-u0[1:-1,1:-1]+u0[0:-2,1:-1])) \
+	+ (1.0/(b*dt +2)) * ((dt*b-2)*um1[1:-1,1:-1] + 4 * u0[1:-1,1:-1])
+
+	um1[:,:]= u0[:,:]
+	u0[:,:] = u1[:,:]
+
+	update_ghost_points(u0);
+
+def advance_mistake_3(um1, u0, u1, q, b, dx, dt):
+	pass
+def advance_mistake_4(um1, u0, u1, q, b, dx, dt):
+	pass
+def advance_mistake_5(um1, u0, u1, q, b, dx, dt):
+	pass
+
+if __name__=="__main__":
+	N = 50
+	L = 1.1
+	T = 10
+	dx = float(L)/(N-1)
+	dt = dx/2.5
+	q = ones((N, N))*0.8
+	f_I = lambda X, Y, L: 3*exp(-200*((X-L/2)**2+(Y-L/2)**2))
+	f_V = lambda X, Y, L: zeros(np.shape(X))
+	f = lambda x: zeros(np.shape(X))
+	q = lambda X, Y, L: ones(np.shape(X))
+	b = 1.2
+
+	myPlotter = wave_plotter()
+	solver(f_I, f_V, f, q, b, L, N, dt, T, user_action = myPlotter)
