@@ -42,7 +42,7 @@ class wave_plotter(user_action):
 		self.ax.set_zlim3d(self.vmin, self.vmax)
 		self.ax.autoscale_view(tight=None, scalex=True, scaley=True, scalez=False)
 
-	def __call__(self, data2D):
+	def __call__(self, data2D, t):
 		plt.draw()
 		self.ax.collections.remove(self.myPlot)
 		self.myPlot = self.ax.plot_wireframe(self.X, self.Y, data2D)
@@ -52,7 +52,7 @@ class user_action_test_constant(user_action):
 	def __init__(self, tolerance=1e-12, constant=0):
 		self.tolerance = 1e-12
 		self.constant = constant
-	def __call__(self, data2D):
+	def __call__(self, data2D, t):
 		nt.assert_almost_equal(np.max(np.max(data2D)), self.constant, self.tolerance)
 
 class user_action_test_symmetric(user_action):
@@ -60,7 +60,7 @@ class user_action_test_symmetric(user_action):
 		self.axis = axis
 		self.tolerance = tolerance
 
-	def __call__(self, data2D):
+	def __call__(self, data2D, t):
 		Nx, Ny = np.shape(data2D)
 		if self.axis == 'x':
 			tmp_left = data2D[0:Nx/2]
@@ -72,12 +72,29 @@ class user_action_test_symmetric(user_action):
 		else:
 			nt.assert_almost_equal(0, 1, 1e-12)
 
-class user_action_test_undamped_stsanding_waves(user_action):
+class user_action_convergence_max_error(user_action):
 	def __init__(self, tolerance=1e-12):
 		self.tolerance = tolerance
+		self.exact_function = None
+		self.errors = []
+	def __call__(self, data2D, t):
+		if self.exact_function==None:
+			raise Exception('Exact solution function not provided!, Cannot calculate true error')
+		diff = data2D-self.exact_function(self.X, self.Y, t)
+		self.errors.append(np.max(np.max(np.abs(diff))))
 
-	def __call__(self, data2D):
-		
+	def initialize(self, X, Y, initial_data=None, vmin=None, vmax=None):
+		self.X = X; self.Y = Y
+
+	def set_exact_solution(self, sol):
+		self.exact_function = sol
+
+	def get(self):
+		return np.asarray(self.errors)
+
+	def reset(self):
+		self.errors = []
+
 
 def update_ghost_points(u):
 	"""
@@ -126,7 +143,7 @@ def solver(f_I, f_V, f, f_q, b, L, N, dt, T, user_action=None):
 		t += dt
 
 		if not user_action == None:
-			user_action(u0[1:-1, 1:-1])
+			user_action(u0[1:-1, 1:-1], t)
 
 
 def advance(um1, u0, u1, q, b, dx, dt):
@@ -235,19 +252,27 @@ def test_plug_wave_solution():
 	plug_wave_solution(user_action=user_action)
 
 
-def standing_undamped_waves(user_action = wave_plotter()):
-	h = np.array((0.1, 0.2)) # should be such that L/h is an integer
+def standing_undamped_waves(user_action = wave_plotter(), h = np.asarray([0.1, 0.05, 0.01, 0.005])):
 	C = 0.5
 	c = 1.0
 	#dx = h
 	dt = h*C/c
-	L = 10.0
-	T = 10
+	L = 1.0
+	Nt = 100
+	T = 1.0
 	A = 1.1
 	m_x = int(2)
 	m_y = int(2)
 	k_x = m_x*np.pi/L
 	k_y = m_y*np.pi/L
+
+	### For testing the solution
+	exact_solution = lambda X, Y, t: A*np.cos(k_x*X)*np.cos(k_y*Y)*np.cos(c*np.sqrt(k_x**2+k_y**2)*t)
+	try:
+		user_action.set_exact_solution(exact_solution)
+	except:
+		pass
+
 	f_I = lambda X, Y, L: A*np.cos(k_x*X)*np.cos(k_y*Y)
 	f_V = lambda X, Y, L: np.zeros(np.shape(X))
 	f = lambda X, Y, L: np.zeros(np.shape(X))
@@ -261,13 +286,23 @@ def standing_undamped_waves(user_action = wave_plotter()):
 		print "one or more h-values are not compatible with the L-value such that L/h is integer"
 		sys.exit(1)
 
-
-
+	max_errors = []
 	for i in range(len(N)):
 		solver(f_I, f_V, f, q, b, L, N[i], dt[i], T, user_action)
+		max_errors.append(np.max(user_action.get()))
+		user_action.reset()
+	plt.plot(np.log10(h), np.log10(max_errors))
 
-def test_standing_undamped_waves():
-	user_action;
+	plt.xlabel("$\log_{10} \ h$")
+	plt.ylabel("$\log_{10} \ \max(e_{i, j}^n)$")
+	p = np.polyfit(np.log10(h), np.log10(max_errors), 1)
+	plt.title("Order of true error: " + "%.2f" % p[0])
+	plt.show()
+	raw_input("press enter")
+
+def convergence_standing_undamped_waves():
+	user_action = user_action_convergence_max_error()
+	standing_undamped_waves(user_action = user_action)
 
 def read_command_line():
 	if (sys.argv[1] == "plug_wave"):
@@ -280,6 +315,9 @@ def read_command_line():
 
 	elif (sys.argv[1] == "standing_undamped_waves"):
 		standing_undamped_waves()
+
+	elif (sys.argv[1] == "convergence_standing_undamped_waves"):
+		convergence_standing_undamped_waves()
 	else:
 		exit(1)
 
@@ -287,7 +325,9 @@ if __name__=="__main__":
 	try:
 		s = sys.argv[1]
 		read_command_line()
-	except Exception:
+	except Exception as e:
+		print type(e)
+		raise
 		N = 50
 		L = 1.1
 		T = 10
