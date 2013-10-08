@@ -92,7 +92,19 @@ This is the trivial solution to the equation, and requires $f(t, x, y) = 0$ and 
 \subsubsection{What if the mathematical formulas were incorrectly implemented}
 \begin{itemize}
 \item $(b\Delta t +2)$ omitted in the first denominator
-
+\item wrong indices in $u_{i, j}^{n+1}$ (See code)
 \end{itemize}
+
+\section{Plug wave solution}
+An initial condition on the form:
+\begin{equation}
+I(x, y) = 
+\begin{cases}
+\text{constant} & \text{ if } x\in (L/2\pm\epsilon) \\
+0 & \text{ otherwise}
+\end{cases}	
+\end{equation}
+Where $\epsilon$ is som e finite number $< L/2$.
+
 
 \end{document}
