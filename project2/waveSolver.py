@@ -83,6 +83,7 @@ class wave_plotter_tvtk(user_action):
 		y_diff = diffs[1]
 		z_diff = 1.0#self.vmax-self.vmin
 
+		self.tvtk = tvtk;
 		self.sp = tvtk.StructuredPoints(origin = (x_middle, y_middle, z_middle),
 										dimensions = (x_diff, y_diff, 1), 
 										spacing = (2*L/(x_diff-1), 2*L/(y_diff-1), 100.0))
@@ -97,14 +98,16 @@ class wave_plotter_tvtk(user_action):
 		# The rest of the VTK pipeline.
 		self.m = tvtk.PolyDataMapper(input=self.normals.output,
 		                        scalar_range=(self.vmin, self.vmax))
-		self.a = tvtk.Actor(mapper=self.m)
+		p = tvtk.Property(opacity=0.5, color=(1, 1, 1), representation="s")
+		self.a = tvtk.Actor(mapper=self.m, property=p)
 
 		self.ren = tvtk.Renderer(background=(0.0, 0.0, 0.0))
+		
 		self.ren.add_actor(self.a)
 
 		# Get a nice view.
 		self.cam = self.ren.active_camera
-		self.cam.azimuth(-60)
+		self.cam.azimuth(-50)
 		self.cam.roll(90)
 
 		# Create a RenderWindow, add the renderer and set its size.
@@ -120,6 +123,7 @@ class wave_plotter_tvtk(user_action):
 		#self.rwi.start()
 		
 	def add_static_background(self, data2D):
+		
 		self.sp2 = copy.copy(self.sp)
 		self.z2 = np.reshape(np.transpose(data2D), (-1,))
 		
@@ -129,9 +133,10 @@ class wave_plotter_tvtk(user_action):
 		self.normals2 = tvtk.PolyDataNormals(input=self.warp2.output)
 
 		# The rest of the VTK pipeline.
-		self.m2 = tvtk.PolyDataMapper(input=self.normals2.output,
-		                        scalar_range=(self.vmin, self.vmax))
-		self.a2 = tvtk.Actor(mapper=self.m2)
+		self.m2 = tvtk.PolyDataMapper(input=self.normals2.output)#,scalar_range=(self.vmin, self.vmax))
+		self.p = tvtk.Property(opacity = 1.0, color=(0.5, 0.5, 0.5), representation="w")
+		self.a2 = tvtk.Actor(mapper=self.m2, property=self.p)
+
 		self.ren.add_actor(self.a2)
 
 		self.rwi.initialize()
