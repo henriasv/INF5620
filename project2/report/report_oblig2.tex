@@ -1,0 +1,113 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+%\usepackage{breqn}
+
+\title{Oblig 2 - INF5620}
+\author{Henrik Andersen Sveinsson}
+\begin{document}
+\maketitle
+
+\section{Introducing the problem}
+The mathematical problem to be solved is the two-dimensional wave equation:
+\begin{equation}
+\frac{\partial^2 u}{\partial t^2} + b\frac{\partial u}{\partial t} =
+\frac{\partial}{\partial x}\left( q (x,y)
+\frac{\partial u}{\partial x}\right) +
+\frac{\partial}{\partial y}\left( q (x,y)
+\frac{\partial u}{\partial y}\right) + f(x,y,t)
+\end{equation}
+
+\section{Deriving the discrete equations}
+Inserting finite differences for the derivatives:
+\begin{equation}
+[D_tD_t u + b D_{2t} u = D_x q D_x u + D_y q D_y u + f]_{i, j}^n
+\end{equation}
+We write this out to prepare it for implementation:
+\begin{eqnarray}
+\frac{u_{i, j}^{n+1} - 2u_{i,j}^{n} + u_{i, j}^{n-1}}{\Delta t^2} +
+b\frac{u_{i, j}^{n+1}-u_{i, j}^{n-1}}{2\Delta t} &=& \\
+\frac{q_{i+\frac{1}{2}, j}^n \left(u_{i+1, j}^n - u_{i, j}^n\right) -
+q_{i-\frac{1}{2}, j}^n \left(u_{i, j}^n - u_{i-1, j}^n\right)}{\Delta x^2} \\
++ \frac{q_{i, j+\frac{1}{2}}^n \left(u_{i, j+1}^n - u_{i, j}^n\right) -
+q_{i, j-\frac{1}{2}}^n \left(u_{i, j}^n - u_{i, j-1}^n\right)}{\Delta y^2} + f_{i, j}^n
+\end{eqnarray}
+Where the $q_\frac{1}{2}$'s will be evaluated with an arithmetic mean.
+We assume that $\Delta x = \Delta y$ for a simpler scheme.
+
+Now, we write out the arithmetic means for $q_{\frac{1}{2}}$ and isolate $u_{i, j}^n$. (With sympy)
+
+\begin{eqnarray*}
+u_{i, j}^{n+1} &=& \frac{\Delta t^2}{\Delta x^{2} \left(\Delta t b + 2\right)} \left( q^{n}_{{i+1, j}} (u^{n}_{{i+1, j}} - u^{{n}}_{{i, j}}) + q^{n}_{{i, j+1}} (u^{n}_{{i, j+1}} - u^{{n}}_{{i, j}}) + q^{n}_{{i, j-1}} (u^{n}_{{i, j-1}} - u^{{n}}_{{i, j}}) \right. \\ &+& \left. q^{n}_{{i, j}} (u^{n}_{{i+1, j}} + u^{n}_{{i, j+1}} + u^{n}_{{i, j-1}} - 4 u^{{n}}_{{i, j}} + u^{n}_{{i-1, j}}) \right. \\
+&+& \left. q^{n}_{{i-1, j}} (-u^{{n}}_{{i, j}} +u^{n}_{{i-1, j}}) + \frac{\Delta x^{2}}{\Delta t^2}\left[ \Delta t b u^{{n-1}}_{{i, j}} - 2 u^{{n-1}}_{{i, j}} + 4 u^{{n}}_{{i, j}} \right] \right)
+\end{eqnarray*}
+
+\section{Domain and boundary condition}
+The partial differential equation is to be solved on a domain $\Omega = [0, L_x] \times [0, L_y]$, which will be discretized by a mesh $(i, j)$ where $i \in (0, N_x)$ and $j \in (0, N_y)$.
+The boundary condition is $\frac{\partial u}{\partial n} = 0$ where $n \in \{x, y\}$. The numerical scheme as it is formulated now, will required to evaluate points outside the mesh in order to calculate the soultion on the boundary. However, with a symmetric nearest neighbor finite difference, the boundary condition requires $u_{i, j}^n = u_{i+1, j}$ for the boundary at $x = L_x$, similarly for the other boundaries.
+In the implementation, these points outsie the mesh are implmemented as ghost cells, and they are updated after all other calculations in that timestep.
+
+\section{Initial conditions and special formula for the first timestep}
+
+$$\frac{\Delta t^{2} \left(2 \Delta x^{2} f + q^{n}_{{i+1, j}} u^{n}_{{i+1, j}} - q^{n}_{{i+1, j}} u^{{n}}_{{i, j}} + q^{n}_{{i, j+1}} u^{n}_{{i, j+1}} - q^{n}_{{i, j+1}} u^{{n}}_{{i, j}} + q^{n}_{{i, j-1}} u^{n}_{{i, j-1}} - q^{n}_{{i, j-1}} u^{{n}}_{{i, j}} + q^{n}_{{i, j}} u^{n}_{{i+1, j}} + q^{n}_{{i, j}} u^{n}_{{i, j+1}} + q^{n}_{{i, j}} u^{n}_{{i, j-1}} - 4 q^{n}_{{i, j}} u^{{n}}_{{i, j}} + q^{n}_{{i, j}} u^{n}_{{i-1, j}} - q^{n}_{{i-1, j}} u^{{n}}_{{i, j}} + q^{n}_{{i-1, j}} u^{n}_{{i-1, j}}\right) + \Delta t \Delta x^{2} b u^{{n-1}}_{{i, j}} - 2 \Delta x^{2} u^{{n-1}}_{{i, j}} + 4 \Delta x^{2} u^{{n}}_{{i, j}}}{\Delta x^{2} \left(\Delta t b + 2\right)}
+$$
+
+$$\frac{\Delta t^{2} \left(2 \Delta x^{2} f + q^{n}_{{i+1, j}} u^{n}_{{i+1, j}} - q^{n}_{{i+1, j}} u^{{n}}_{{i, j}} + q^{n}_{{i, j+1}} u^{n}_{{i, j+1}} - q^{n}_{{i, j+1}} u^{{n}}_{{i, j}} + q^{n}_{{i, j-1}} u^{n}_{{i, j-1}} - q^{n}_{{i, j-1}} u^{{n}}_{{i, j}} + q^{n}_{{i, j}} u^{n}_{{i+1, j}} + q^{n}_{{i, j}} u^{n}_{{i, j+1}} + q^{n}_{{i, j}} u^{n}_{{i, j-1}} - 4 q^{n}_{{i, j}} u^{{n}}_{{i, j}} + q^{n}_{{i, j}} u^{n}_{{i-1, j}} - q^{n}_{{i-1, j}} u^{{n}}_{{i, j}} + q^{n}_{{i-1, j}} u^{n}_{{i-1, j}}\right) + 4 \Delta x^{2} u^{{n}}_{{i, j}}}{4 \Delta x^{2}}$$
+
+There are certain restrictions on the initial conditions. For example, there should be no overall drift in the solution. 
+
+\section{Truncation error}
+The truncation error is alwas defined as the error that arises when the exact solution to an equation is inserted into a scheme to solve that equation.
+
+In our case that means that the error is $R$ in the following equation:
+\begin{equation}
+	[D_tD_t u_e + bD_tu_e = D_xqD_xu_e + D_yqD_yu_e + f + R]_{i,j}^n
+\end{equation}
+First, we show the truncation error with constant q, note that in the following equation, all $u$'s are the exact solution.
+\begin{eqnarray*}
+R^n = u_{tt}(t_n) + \frac{1}{12}u_{ttt}(t_n) \Delta t^2 + \mathcal{O}(\Delta t^4)
++ b(u_t(t_n) + \frac{1}{6}u_{ttt}(t_n) \Delta t^2) \\
+- q(u_{xx}(t_n) + \frac{1}{12}u_{xxx}\Delta x^2 + \mathcal{O}(\Delta x^4))
+- q(u_{yy}(t_n) + \frac{1}{12}u_{yyy}\Delta y^2 + \mathcal{O}(\Delta y^4))
+- f(t_n)
+\end{eqnarray*}
+Since $u$ is indeed the exact solution, we can subtract the initial equation, such that:
+\begin{equation}
+R^n = \left(\frac{1}{12}u_{ttt}(t_n) + \frac{1}{6}bu_{ttt}(t_n)\right)\Delta t^2 
++ \frac{1}{12}q\left(u_{xxx}\Delta x^2 + u_{yyy}\Delta y^2 \right) + \mathcal{O}(\Delta t^4, \Delta x^4, \Delta y^4)
+\end{equation}
+So, the truncation error is of second order both in time and space. 
+
+Then, for a non-constant $q$, we are interested in the difference between $[D_xq(x, y)D_x u_e]$ and $\frac{\partial}{\partial x} q(x, y) \frac{\partial u}{\partial x}$. In order to find this out, we make a taylor series of all the terms involved in the numerical scheme for this expression. This is a long and tedious computation, but it is done for this exact expression in the course material, and the error is of second order.
+
+Therefore the whole scheme is of second order. 
+
+\section{Verification}
+\subsection{Constant solution}
+We construct a constant solution:
+\begin{equation}
+u(t, x, y) = C
+\end{equation}
+This is the trivial solution to the equation, and requires $f(t, x, y) = 0$ and $V(x, y) = 0$. 
+
+\subsubsection{What if the mathematical formulas were incorrectly implemented}
+\begin{itemize}
+\item $(b\Delta t +2)$ omitted in the first denominator
+\item wrong indices in $u_{i, j}^{n+1}$ (See code)
+\end{itemize}
+
+\section{Plug wave solution}
+An initial condition on the form:
+\begin{equation}
+I(x, y) = 
+\begin{cases}
+\text{constant} & \text{ if } x\in (L/2\pm\epsilon) \\
+0 & \text{ otherwise}
+\end{cases}	
+\end{equation}
+Where $\epsilon$ is som e finite number $< L/2$.
+
+
+\section{Standing undamped waves}
+This test is not trivial. The numerical solution will oscillate out of sync with the exact one, causing th solution to be off with $\approx 2A$ at most. I guess the point of this exercise is to see how fast this happens, as a value in timesteps. 
+
+\end{document}
