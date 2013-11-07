@@ -1,0 +1,24 @@
+Hei Henrik!
+
+ * Fint med latex, var ikke nødvendig men selvfølgelig helt ok!
+ * Generelt en god løsning, bra at du har wrappet alt inn i skydiving.py
+ * Vill vært bedre og hatt en Problem class som holdt på problemspesifikke verdier som C_D, rho osv., i tillegg
+   til en Solver-klasse som tok seg av selve løsningen med CN. Men, greit nok, du har gjort det på din måte, helt ok.
+ * Var bra dette her. Ser at du normalt ikke skriver Python ved at du flytter parentesene ned, f.eks.:
+
+def __init__(	self, 
+					m 	= 	85.0, 
+					g	=	9.81, 
+					C_D = 	1.2,
+					A 	= 	0.5,
+					V 	= 	0.1, 
+					rho =	1.0,
+					I 	= 	0,
+					Fs	=	lambda t, dt: 0
+				):
+
+   det er din måte, men ikke Python-måten. Det er du klar over :-D
+
+ * Ikke så mye mer å si egentlig, litt mer kommentering kunne vært greit, det gjør koden ekstremt mye enklere å sette seg inn i. Ellers fint!
+
+Godkjent.

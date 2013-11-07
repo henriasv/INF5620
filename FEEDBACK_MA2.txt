@@ -1,0 +1,14 @@
+Halla Henrik!
+
+ * Dette var bra, fine resultater i rapporten. Mangler noen tester
+   her dog, og evt. litt på noen av de siste oppgavene.
+ * Solver er fin, bedre om du hadde splittet opp i flere filer.
+   Mangler også skalar kode, du skulle implementere begge deler,
+   men skjønner forsåvidt at du ikke gadd det.
+ * Testene er bra, du vil få problemer hvis du prøver å kjøre filen
+   gjennom nosetests -s waveSolver.py, da måtte du hatt testene definert
+   som def test_ osv.
+
+Neimen det er bra det her!
+
+Approved.
