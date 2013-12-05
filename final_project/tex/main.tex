@@ -101,12 +101,25 @@ Med sympy vises det da at kildeleddet f skal være:
 
 Forskjellen mellom løsningen her og løsningen i FEniCS bør være av orden $\Delta t$, siden jeg bruker et Backward Euler skjema. 
 
-Innsetting av dette i den numeriske metoden gir en feil som går som $/Delta t$, som vist i figur \ref{fig:convergence_manufactured_1d}.
+Innsetting av dette i den numeriske metoden gir en feil som går som $\Delta t$, som vist i figur \ref{fig:convergence_manufactured_1d}.
 
-\begin{figure}
+Dette viser at feilen som følge av picarditerasjonen ikke er av større orden enn feilen Backward Euler gir. Jeg anser at denne også løser oppgave g, selv om jeg ikke har satt inn den korrigerte produserte løsningen. 
+
+\begin{figure}[h!tb]
 \includegraphics[width=\textwidth]{figures/convergence_manufactured_1d.pdf}
 \caption{Figuren viser at feilen med \emph{manufactured solution} nesten er i orden $\Delta t$.}
 \label{fig:convergence_manufactured_1d}.
 \end{figure}
+
+\section{Feilkilder i programmene}
+Feilkilder:
+\begin{itemize}
+\item Programmeringsblunders
+\item Trunkeringsfeil
+\item Avrundingsfeil (sannsynligvis små)
+\item Picarditerasjon
+\end{itemize}
+
+
 
 \end{document}
