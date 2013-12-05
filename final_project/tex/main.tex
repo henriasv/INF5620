@@ -3,6 +3,7 @@
 \documentclass[a4paper, 10pt]{article}
 \usepackage[utf8x]{inputenc}
 \usepackage{cancel}
+\usepackage{graphicx}
 \newcommand{\mb}{\mathbf}
 \newcommand{\mc}{\mathcal}
 \newcommand{\n}{\nabla}
@@ -83,5 +84,29 @@ Setter så inn at $v$ er alle $\psi$ i et eller annet rom, som er det samme romm
 = \rho(u\_, \psi_i)+  \Delta t (f, \psi_i) \ \ \forall \ \ i
 \end{equation}
 Picard-iterasjon på denne, vil si å løse dette likningssettet med hensyn på $u = \sum c_j \psi_j$, og oppdatere $u\_$. 
+
+\section{Implementasjon}
+Tidsintegrasjon med 1-stegs picarditerasjon er implementert. E/h er konstant (vist ved testing for varierende oppløsning).
+
+\section{Manufactured solution}
+Likningen skal løses i 1D på $\Omega = [0, 1]$. Den ikke-lineære faktoren er $\alpha = 1 + u^2$ og løsningen skal være:
+\begin{equation}
+	u(x,t) = t\int_0^x q(1-q)dq = tx^2\left(\frac{1}{2} - \frac{x}{3}\right)
+\end{equation}
+
+Med sympy vises det da at kildeleddet f skal være:
+\begin{equation}
+	f(x, t) = - \frac{1}{3} \rho x^{3} + \frac{1}{2} \rho x^{2} + \frac{8}{9} t^{3} x^{7} - \frac{28}{9} t^{3} x^{6} + \frac{7}{2} t^{3} x^{5} - \frac{5}{4} t^{3} x^{4} + 2 t x - t
+\end{equation}
+
+Forskjellen mellom løsningen her og løsningen i FEniCS bør være av orden $\Delta t$, siden jeg bruker et Backward Euler skjema. 
+
+Innsetting av dette i den numeriske metoden gir en feil som går som $/Delta t$, som vist i figur \ref{fig:convergence_manufactured_1d}.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/convergence_manufactured_1d.pdf}
+\caption{Figuren viser at feilen med \emph{manufactured solution} nesten er i orden $\Delta t$.}
+\label{fig:convergence_manufactured_1d}.
+\end{figure}
 
 \end{document}
