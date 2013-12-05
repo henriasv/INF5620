@@ -1,0 +1,77 @@
+% Eksamensoppgave i INF5620
+
+\documentclass[a4paper, 10pt]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{cancel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\newcommand{\mb}{\mathbf}
+\newcommand{\mc}{\mathcal}
+\newcommand{\n}{\nabla}
+
+\author{Henrik Andersen Sveinsson}
+\title{Eksamensoppgave 2 - INF5620}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+
+\section{Oppgavetekst}
+\subsection{ODE-oppgave}
+Consider the ODE problem:
+\begin{equation}
+	T' = -kT, T(0) = T_0
+\end{equation}
+Sketch graphically what kind of numerical problems (artifacts, non-physical features) that can arise from applying the Forward Euler, Backward Euler and Crank-Nicolson schemes to solve this ODE problem. Explain how mathematical analysis can provide understanding of the numerical problems.
+
+\subsection{PDE-oppgave}
+We consider a diffusion problem
+\begin{equation}
+	T_t = kT_{xx}
+\end{equation}
+
+modeling the temperature in a solid body. Two pieces of the same material, with different temperatures, are brought together at $t=0$. The condition at $t=0$ can be formulated as $T(x, 0) = T_0$ for $x \in [0, L/2)$ and $T(x, 0) = T_1 \neq T_0$ for $x \in [L/2, L]$. The PDE will then predict how the initially discontinous temperature develops in time and space. 
+
+ Illustrate what kind of numerical problems (artifacts, non-physical features) that may arise from the Forward Euler, Backward Euler, and Crank-Nicolson schemes applied to this PDE problem. Explain how mathematical analysis can provide understanding of the numerical problems. Point out what is similar to the ODE problem in a) and what is new in this PDE problem.
+
+Hint. A demo program for experimentation with an initial discontinuity is available: demo\_osc.py. 
+
+\section{Hva handler denne oppgaven om?}
+Målet med oppgaven er å klare å beskrive artifacts i løsningen av en lineær førsteordens differensiallikning, og i en endimensjonal diffusjonslikning. Man skal sammenlikne og greie ut for FE, BE og CN.
+
+Det er naturlig å ha med følgende elementer:
+\begin{itemize}
+\item Vise finite difference-approksimasjonene for ODE-en
+\item Innføre $\Theta$-regelen.
+\item Finne \emph{amplification factor} for $\Theta$-regelen
+\item Forklare hvordan man får oscillerende oppførsel som følge va negativ amplification factor.
+\item Kunne si noe dypere matematisk om hvor dette kommer fra
+
+\item Vise finite difference-approksimasjonen for PDE-en. Velge å kun se på centered difference i romlig dobbelderivert. 
+\item Stabilitetskriteriet 
+\end{itemize}
+
+\section{Diskretisering av likningen med finite difference}
+For å løse ODE-en på datamaskin må de diskretiseres. Når vi gjør dette med finite difference, lager vi oss en ny ligning, som under noen forutsetninger, og i grensetilfeller, vil ha løsninger som er svært like løsningene for det kontinuerlige problemet. 
+
+3 vanlige metoder for å tilnærme 1. deriverte av en funksjon $u$ er: \\
+\center{Forward Euler}
+\begin{equation}
+	u_t(t_n) = \frac{u(t_{i+1})-u(t_i)}{\Delta t}
+\end{equation}
+
+\center{Backward Euler}
+\begin{equation}
+	u_t(t_n) = \frac{u(t_{i})-u(t_{i-1})}{\Delta t}
+\end{equation}
+
+\center{Crank-Nicolson}
+\begin{equation}
+	u_t(t_{n+\frac{1}{2}}) = \frac{u(t_{i+1})-u(t_i)}{\Delta t}
+\end{equation}
+
+
+
+\end{document}
+
