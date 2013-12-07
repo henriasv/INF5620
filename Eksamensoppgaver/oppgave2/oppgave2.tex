@@ -8,6 +8,7 @@
 \newcommand{\mb}{\mathbf}
 \newcommand{\mc}{\mathcal}
 \newcommand{\n}{\nabla}
+\newcommand{\p}{\partial}
 
 \author{Henrik Andersen Sveinsson}
 \title{Eksamensoppgave 2 - INF5620}
@@ -16,5 +17,32 @@
 
 \begin{document}
 \maketitle
+
+\section{Oppgavetekst}
+
+\subsection*{a}
+ Set up a wave equation problem in 2D with zero normal derivative as boundary condition. Assume a variable wave velocity.
+
+Mention a physical problem where this mathematical model arises. Explain the physical interpretation of the unknown function.
+\subsection*{b}
+ Present a finite difference discretization. Explain in particular how the boundary conditions and the initial conditions are incorporated in the scheme.
+\subsection*{c}
+ Explain (in princple) how the 2D discretization can be extended to 3D.
+\subsection*{d}
+ Set up the stability condition in 3D. Also quote results on about accuracy of the method in 3D and define the accuracy measure(s) precisely.
+\subsection*{e}
+ Explain how you can verify the implementation of the method.
+\subsection*{f}
+ The scheme for the wave equation is perfect for parallel computing. Why? What are the principal ideas behind a parallel version of the scheme? 
+
+\section{Bølgelikningen på grunt vann i 2D}
+
+\begin{equation}
+	\frac{\p^2}{\p t^2} u(t, x, y) = \frac{\p}{\p x} v(x, y)^2 \frac{\p}{\p x} u + \frac{\p}{\p y} v(x, y)^2 \frac{\p}{\p y} u
+\end{equation}
+
+Denne likningen oppstår ved modellering av tsunamier. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. 
+
+
 
 \end{document}

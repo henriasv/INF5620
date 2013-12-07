@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.10.12)  5 DEC 2013 19:35
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.10.12)  7 DEC 2013 13:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -237,34 +237,54 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 58--59
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
 
  []
 
-[2] (./oppgave1.aux) ) 
+[2]
+Overfull \hbox (13.4081pt too wide) in paragraph at lines 99--100
+[]\OT1/cmr/m/n/10 Man kan skrive fi-nite dif-fer-ences p^^Wa en mer kom-pakt op
+-er-a-torno-tasjon. ***Dette
+ []
+
+<figures/ampFactor.pdf, id=21, 587.19376pt x 442.65375pt>
+File: figures/ampFactor.pdf Graphic file (type pdf)
+
+<use figures/ampFactor.pdf>
+Package pdftex.def Info: figures/ampFactor.pdf used on input line 120.
+(pdftex.def)             Requested size: 345.0pt x 260.07599pt.
+ [3] [4 <./figures/ampFactor.pdf>]
+Overfull \hbox (45.94518pt too wide) in paragraph at lines 202--203
+[]\OT1/cmr/m/n/10 En l^^\sning av et prob-lem vil stort sett v^^Zre en line^^Zr
+kom-bi-nasjon av l^^\sningsfunksjoner,
+ []
+
+[5] [6] (./oppgave1.aux) ) 
 Here is how much of TeX's memory you used:
- 2886 strings out of 493485
- 38766 string characters out of 3143525
- 102060 words of memory out of 3000000
- 6159 multiletter control sequences out of 15000+200000
- 9061 words of font info for 33 fonts, out of 3000000 for 9000
+ 2898 strings out of 493485
+ 38977 string characters out of 3143525
+ 103076 words of memory out of 3000000
+ 6169 multiletter control sequences out of 15000+200000
+ 9900 words of font info for 36 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 38i,6n,23p,379b,478s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.p
-fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmti10.pfb>
-Output written on oppgave1.pdf (2 pages, 117757 bytes).
+ 38i,7n,23p,465b,478s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pf
+b></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr
+/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmti10.pfb>
+Output written on oppgave1.pdf (6 pages, 2727168 bytes).
 PDF statistics:
- 55 PDF objects out of 1000 (max. 8388607)
- 39 compressed objects within 1 object stream
+ 10184 PDF objects out of 10688 (max. 8388607)
+ 67 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
