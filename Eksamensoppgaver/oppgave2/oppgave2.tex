@@ -41,11 +41,86 @@ Mention a physical problem where this mathematical model arises. Explain the phy
 	\frac{\p^2}{\p t^2} u(t, x, y) = \frac{\p}{\p x} \left(q(x, y) \frac{\p}{\p x} u\right) + \frac{\p}{\p y} \left(q(x, y) \frac{\p}{\p y} u\right)
 \end{equation}
 
-Denne likningen oppstår ved modellering av tsunamier. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. $q(x, y) = v(x, y)^2$ der $v$ er bølgehastigheten. 
+Denne likningen oppstår ved modellering av tsunamier. Jeg har antatt en konstant tetthet, slik at den kan inngå i funksjonen $q$. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. $q(x, y) = v(x, y)^2$ der $v$ er bølgehastigheten. Grensebetingelsen som vi vil sette opp er $\frac{\p u}{\p n} = 0$, som er en Neumannbetingelse.
 
 
-\section{Finite difference disktetisering}
+\section{Finite difference diskretisering}
 
 Her velger jeg å bruke tilfellet at $q$ er konstant, for å få litt mindre å skrive. Jeg tenker det er fornuftig når det kun er 15 minutter. 
+(Spørre HPL om det er greit å anta dette her)
+Da ser likningen slik ut:
+\begin{equation}
+	u_{tt} = c^2(u_{xx} + u_{yy})
+\end{equation}
+
+Vi velger en sentert differanse i alle ledd, med $\Delta x = \Delta y = h$
+
+\begin{equation}
+	\frac{u_{i, j}^{n+1} - 2u_{i,j}^n + u_{i, j}^{n-1}}{\Delta t^2} = c^2\frac{u_{i+1, j}^n - 2u_{i, j}^n + u_{i-1, j}^n + u_{i, j+1}^n - 2u_{i, j}^n + u_{i, j-1}^n}{\Delta h^2}
+\end{equation}
+\begin{equation}
+	u_{i, j}^{n+1} = 2u_{i,j}^n - u_{i,j}^{n-1} + \frac{c^2 \Delta t^2}{h^2}\left( u_{i+1, j}^n + u_{i-1, j}^n + u_{i, j+1}^n + u_{i, j-1}^n - 4u_{i,j}^n\right)
+\end{equation}
+Dette git en metode for å finne tilstanden i et tidssteg, gitt alle funksjonsverdiene i de to forrige tidsstegene. Men vi ser at man kun finner funksjonsverdier for punkter (i, j), men for å finne disse trenger vi punktene rett utenfor randen. Her kommer randbetingelsene inn i bildet. Vi skal se på to typer grensebetingelser. For grunt vann-likninger er nok Neumannbetingelsen den mest relevante, men vi skal også se på Dirichletbetinglesen. 
+
+\subsection{Dirichletbetingelsen}
+Den enkleste randbetingelsen man kan tenke seg:
+\begin{equation}
+	u(\mb{x}) = f(\mb{x}) \forall \mb{x} \in \p\Omega
+\end{equation}
+Dette løser problemet vi hadde på randen. Dersom vi har en rand med kjente verdier trenger vi bare å regne ut verdiene strengt innenfor denne, og vi har dermed alltid tilgang til verdier som ligger ett hakk "utenfor" de verdiene vi regner ut. 
+
+\subsection{Neumannbetingelsen}
+Neumannbetingelsen går på den deriverte på randen, og vi setter $\frac{\p u}{\p n} = f(\mb{x})$ på $\p\Omega$. Dersom vi ser på områder som kun har normal i koordinatretningene, er det greit å takle disse randbetingelsene også, ved å gjøre en endelig differanse-tilnærming til randbetingelsen:
+\begin{equation}
+	\frac{u_{i+1}-u_{i-1}}{2h} = f(u_i)
+\end{equation}
+Dette gir 
+\begin{equation}
+	u_{i+1} = u_{i-1} + 2hf(u_i)
+\end{equation}
+For høyre og øvre grenseflate, og 
+\begin{equation}
+	u_{i-1} = u_{i+1} - 2hf(u_i) 
+\end{equation}
+For venste og nedre grenseflate. 
+Her evaluerer man i prinsippet punkter som ligger utenfor domenet man jobber på, så dette legges inn før man regner funksjonsverdier på det indre av domenet.
+
+\subsection{Initialbetingelse}
+For å løse bølgelinkningen trenger man to initialbetingelser i hvert punkt: Funksjonsverdien og den første deriverte. Da kan man lage et "Ghost timestep" for tidssteg $-1$. 
+
+Vi kjører en differansemetode på den deriverte av initialbetingelsen:
+\begin{equation}
+	\frac{u_{i, j}^{n+1}-u_{i, j}^{n-1}}{2\Delta t} = V_{i, j}
+\end{equation}
+\begin{equation}
+	u^{-1}_{i,j} = u^1_{i,j} - 2\Delta t V_{i,j}
+\end{equation}
+
+Vi setter dette inn i det generelle skjemaet, og får for $u^1$
+\begin{equation}
+	u_{i, j}^{1} = 2u_{i,j}^0 - (u^1_{i,j} - 2\Delta t V_{i,j}) + \frac{c^2 \Delta t^2}{h^2}\left( u_{i+1, j}^0 + u_{i-1, j}^0 + u_{i, j+1}^0 + u_{i, j-1}^0 - 4u_{i,j}^0\right)
+\end{equation}
+
+Innsatt for initialbetingelse og snudd litt på, får vi:
+\begin{equation}
+	u_{i, j}^1 = I_{i,j} + 2\Delta t V_{i,j} + \frac{c^2\Delta t}{h^2} (I_{i+1, j} + I_{i-1, j} + I_{i, j+1}+I_{i, j-1} - 4I_{i,j})
+\end{equation}
+Her har vi eliminert dette "Ghost timestep" $-1$, så nå kan man regne ut $u^1$, og deretter kjøre algoritmen vanlig.
+
+
+\section{Utvidelse til 3D}
+Utvidelsen til 3D er nærmest triviell. Man legger på hele del-operatoren i likningen:
+\begin{equation}
+	u_{tt} = c^2 \nabla^2 u
+\end{equation}
+
+\section{Stabilitet i 3D}
+
+\section{Verifikasjon}
+
+
+\section{Parallellisering}
+Skjemaet er perfekt for parallellisering, fordi man vet alt man trenger for neste tidssteg direkte i et tidssteg, og fordi man kun trenger informasjon for noder i nærheten for å regne oppførsel i neste tidssteg. 
 
 \end{document}
