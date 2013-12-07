@@ -38,11 +38,14 @@ Mention a physical problem where this mathematical model arises. Explain the phy
 \section{Bølgelikningen på grunt vann i 2D}
 
 \begin{equation}
-	\frac{\p^2}{\p t^2} u(t, x, y) = \frac{\p}{\p x} v(x, y)^2 \frac{\p}{\p x} u + \frac{\p}{\p y} v(x, y)^2 \frac{\p}{\p y} u
+	\frac{\p^2}{\p t^2} u(t, x, y) = \frac{\p}{\p x} \left(q(x, y) \frac{\p}{\p x} u\right) + \frac{\p}{\p y} \left(q(x, y) \frac{\p}{\p y} u\right)
 \end{equation}
 
-Denne likningen oppstår ved modellering av tsunamier. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. 
+Denne likningen oppstår ved modellering av tsunamier. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. $q(x, y) = v(x, y)^2$ der $v$ er bølgehastigheten. 
 
 
+\section{Finite difference disktetisering}
+
+Her velger jeg å bruke tilfellet at $q$ er konstant, for å få litt mindre å skrive. Jeg tenker det er fornuftig når det kun er 15 minutter. 
 
 \end{document}
