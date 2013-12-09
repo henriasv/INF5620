@@ -17,4 +17,51 @@
 \begin{document}
 \maketitle
 
+\section{Oppgavetekst}
+\subsection{a} 
+Consider a vibration problem
+
+\begin{equation}
+	u''(t)+\omega^2 u(t)=0,u(0)=I, u'(0)=V
+\end{equation}
+Here, $\omega$, $I$, and $V$ are given data. We discretize the ODE by centered diferences,
+
+\begin{equation}
+	[D_tD_tu+\omega^2u=0]^n
+\end{equation}
+Explain how the stability and the accuracy of this scheme can be investigated via exact solutions of the discrete equations, and quote the main results. Illustrate the numerical problems that can arise from this scheme.
+
+\subsection{b} 
+We now consider a 1D wave equation
+\begin{equation}
+u_{tt}=c^2u_{xx}	
+\end{equation}
+
+with some appropriate boundary and initial conditions. Explain how the stability and accuracy of a centered difference scheme,
+
+\begin{equation}
+	[D_tD_tu=c^2D_xD_x u]^n_i
+\end{equation}
+
+can be investigated via exact solutions of the discrete equations. Quote the main results.
+
+\subsection{c}
+ Explain how the analysis can help us to understand why a smooth initial condition gives relatively small numerical artifacts, and why a less smooth initial condition gives rise to significant numerical artifacts. The movies below show a wave propagating with unit Courant number in a medium and the wave enters another medium with 1/4 of the wave velocity (implying a Courant number of 1/4 in that medium). The propagation of waves in the left medium is exact, while the propagation in the other medium is subject to numerical errors.
+
+\subsection{d} 
+Explain how a truncation error analysis is carried out for the problem in a). Find correction terms such that the order of the scheme becomes $\Delta t^4$.
+
+\subsection{e} 
+Explain how a truncation error analysis is carried out for the problem in b). Find correction terms such that the order of the scheme becomes $\Delta t^4,\Delta x^4$.
+
+\section{Eksakt løsning av de diskrete likningene:}
+Diskret likning:
+\begin{equation}
+	[D_t D_t u +\omega^2 u = 0 ]^n
+\end{equation}
+Det er rimelig å anta at det finnes løsninger av denne diskrete likningen har løsninger som likner på løsningen av de kontinuerlige likningene, som er   
+\begin{equation}
+	u = Ae^{i\omega t} + Be^{-i\omega t}
+\end{equation}
+
 \end{document}

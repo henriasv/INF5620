@@ -115,12 +115,39 @@ Utvidelsen til 3D er nærmest triviell. Man legger på hele del-operatoren i lik
 	u_{tt} = c^2 \nabla^2 u
 \end{equation}
 
+Dersom man tar med variabel bølgehastighet i rom, får man et numerisk skjema i 3D:
+\begin{align*}
+u^{n+1}_{i,j,k} &= - u^{n-1}_{i,j,k}  + 2u^{n}_{i,j,k} + \\ 
+ & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i+1,j,k})(u^{n}_{i+1,j,k} - u^{n}_{i,j,k}) - \\ 
+&\qquad\quad \frac{1}{2}(q_{i-1,j,k} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i-1,j,k})) + \\ 
+ & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i,j+1,k})(u^{n}_{i,j+1,k} - u^{n}_{i,j,k}) - \\ 
+&\qquad\quad\frac{1}{2}(q_{i,j-1,k} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i,j-1,k})) + \\ 
+ & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i,j,k+1})(u^{n}_{i,j,k+1} - u^{n}_{i,j,k}) -\\ 
+&\qquad\quad \frac{1}{2}(q_{i,j,k-1} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i,j,k-1})) + \\ 
++ &\qquad \Delta t^2 f^n_{i,j,k}
+\end{align*}
+
 \section{Stabilitet i 3D}
+Stabilitetskriteriet i 3d er:
+\begin{equation}
+	 \Delta t \leq \frac{1}{c \sqrt{ \frac{1}{\Delta x^2} + \frac{1}{\Delta y^2} + \frac{1}{\Delta z^2}}}
+\end{equation}
 
 \section{Verifikasjon}
+Det finnes flere gode måter å verifisere implementasjonen på:
+
+\subsection{Manufactured solution}
+Vi bestemmer en løsning, og ser så hvilket kildeledd vi må legge på for å få denne løsningen. 
+
+\subsection{Plug wave solution}
+Plug-bølge med couranttall 1 løses eksakt. 
+
+\subsection{Stående bølger}
+Her kan man sjekke at feilen konvergerer på riktig måte.
 
 
 \section{Parallellisering}
 Skjemaet er perfekt for parallellisering, fordi man vet alt man trenger for neste tidssteg direkte i et tidssteg, og fordi man kun trenger informasjon for noder i nærheten for å regne oppførsel i neste tidssteg. 
+Generelt sett, bør man se etter deler av en rutine som kan gjøres samtidig. 
 
 \end{document}
