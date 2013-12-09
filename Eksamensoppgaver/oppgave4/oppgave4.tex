@@ -10,11 +10,61 @@
 \newcommand{\n}{\nabla}
 
 \author{Henrik Andersen Sveinsson}
-\title{Eksamensoppgave 4 - INF5620}
+\title{Eksamensoppgave 4 - INF5620 \\ \large Finite elements for a 1D wave equation }
 \date{\today}
 
 
 \begin{document}
 \maketitle
+
+\section{Oppgavetekst}
+ We consider the 1D wave equation problem on $\Omega=[0,L]$:
+
+\begin{equation}
+	u_{tt}=c^2u_{xx}+f, \ u(x,0)=I(x), \ u_t(x,0)=0, \ u_x(0)=u_x(L)=0.
+\end{equation}
+
+\subsection{a}
+Explain how the initial condition can be approximated by the finite element method using the principles of least squares, projection (Galerkin), and interpolation (collocation).
+
+\subsection{b} 
+Discretize in time by a centered difference: $u_{tt}(x_i,t_n)\approx[D_t D_tu]^n_i$. Derive a variational formulation of the time-discrete wave equation problem using the Galerkin method. Derive formulas for the element matrix and vector corresponding to the term with $u_{xx}$ in the PDE.
+
+\subsection{c} Show how the element matrix associated with the uxx term is computed for P1 elements. Explain the assembly principle and what the resulting global matrix look like when all cells have equal length.
+
+\subsection{d} Set up the discrete equations for this wave problem on operator form (assume P1 elements). Briefly explain the idea of an analysis of the scheme based on exact solution of the discrete equations. State the main results. Compare the main results with those of the finite difference method (Problem 3: Analysis of wave problems). 
+
+\section{Tilnærming av initialbetingelsen}
+\subsection{Interpolasjon (Kolokasjon)}
+Ideen med interpolasjon er at den tilnærmede funksjonen skal ha samme verdi som den opprinnelige funksjonen på et endelig sett med punkter $x_i \in \mc{I}_s$:
+\begin{equation}
+	u(x_i) = \sum_{j\in \mc{I}_s}c_j \psi_j(x_i) = f(x_i), i\in \mc{I}_s
+\end{equation}
+Vi kan like godt skrive at $\psi_j(x_i) = A_{i,j}$ og $f(x_i) = b_i$, slik at vi får et likningssystem:
+\begin{equation}
+	\sum_{\mc{I}_s} A_{i,j}c_j = b_i, i\in \mc{I}_s
+\end{equation}
+Dermed har vi en matriselikning $A\mb{c} = \mb{b}$ som løses for å finne de ukjente koeffisientene $c_j$.
+Det finnes sett med funksjoner som er slik at $\psi_i(x_j) = \delta_{i,j}$, slik at matrisen $A$ blir diagonal. 
+
+\subsection{Galerkin (Projeksjon)}
+Utgangspunktet er at vi vil tilnærme en funksjon $f$ som:
+\begin{equation}
+	f(x) \approx u = \sum_{j\in \mc{I}_s} c_j \psi_j
+\end{equation}
+Der $u \in V$ er den tilnærmede funksjonen.
+Prinsippet som skal brukes, er at forskjellen mellom $f$ og $u$ skal være ortogonal på $V$ som inneholder funksjonene vi ekspanderer $f$ i. Dette viser seg å være ekvivalent med minste kvadraters metode. 
+
+Vi kan sette opp: 
+\begin{equation}
+	e = f - \sum_{j\in \mc{I}_s} c_j \psi_j
+\end{equation}
+At $e$ er ortogonal på $V$ er det samme som at $(e, v) = 0 \  \forall v \in V$. For vårt spesifikke valg av basisfunksjoner $\psi_j$, får vi:
+\begin{equation}
+	(e, \psi_j) = 0 \ \forall i \in \mc{I}_s
+\end{equation}
+
+
+\section{}
 
 \end{document}

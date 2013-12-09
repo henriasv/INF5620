@@ -54,14 +54,149 @@ Explain how a truncation error analysis is carried out for the problem in a). Fi
 \subsection{e} 
 Explain how a truncation error analysis is carried out for the problem in b). Find correction terms such that the order of the scheme becomes $\Delta t^4,\Delta x^4$.
 
-\section{Eksakt løsning av de diskrete likningene:}
+\section{Svingelikningen:}
 Diskret likning:
 \begin{equation}
 	[D_t D_t u +\omega^2 u = 0 ]^n
 \end{equation}
+
+Gir et eksplisitt numerisk skjema:
+\begin{equation}
+	u^{n+1} = 2u^n - u^{n-1} - \Delta t^2\omega^2 u^n
+\end{equation}
+Dette er en andre ordens lineær differenslikning med kostante koeffisienter. Derfor skal den ha løsninger på formen:
+\begin{equation}
+	u^n = A^n
+\end{equation}
+Der $A$ er et komplekst tall.
+
 Det er rimelig å anta at det finnes løsninger av denne diskrete likningen har løsninger som likner på løsningen av de kontinuerlige likningene, som er   
 \begin{equation}
-	u = Ae^{i\omega t} + Be^{-i\omega t}
+	u = Ae^{i\omega t}
 \end{equation}
 
+Vi regner med at de diskrete likningene vil ha en lik løsning, men med endret $\omega$. Vi setter inn en $\tilde{\omega}$.
+
+Dette betyr at vi prøver å finne løsninger på formen
+\begin{equation}
+	u^n  =A^n = Ie^{\tilde{\omega}\Delta t n} = I e^{i\tilde{\omega}t}
+\end{equation}
+
+Vi setter dette inn i sentrert differanseoperator, og får:
+\begin{equation}
+	[D_t D_t u]^n = -I\exp{(i\tilde\omega t)}\frac{4}{\Delta t^2}\sin^2(\frac{\tilde\omega\Delta t}{2})
+\end{equation}
+Så setter vi dette inn i den diskrete likningen, og løser for  $\tilde{\omega}$
+\begin{equation}
+	-I e^{i\tilde{\omega}t}\frac{4}{\Delta t^2}\sin^2{\frac{\tilde{\omega}\Delta t}{2}} + \omega^2 Ie^{i\tilde{\omega}t} = 0
+\end{equation}
+Vi finner ut ifra dette, at for at påstanden om at den diskrete løsningen skal være $I e^{i\tilde{\omega}t}$, så må $\tilde{\omega}$ være gitt ved:
+\begin{equation}
+	\tilde{\omega} = \pm \frac{2}{\Delta t} \sin^{-1} \left(\frac{\omega\Delta t}{2}\right) \geq 1
+\end{equation}
+Dette tallet er alltid større enn 1, som betyr at svingefrekvensen til løsningen av den diskrete likningen er større enn svingefrekvensen til løsningen av den kontinuerlige likningen.
+
+(Tegne opp omtrent hvordan denne grafen ser ut)
+
+For et lite antall tidssteg per svingning, vi lman få en ganske høy frekvens i den diskrete løsningen sammenliknet med den kontinuerlige. Det vil gi fullstendig faseforskyvning av løsningen etterhvert.
+
+Stabilitetskriteriet på dette skjemaet er gitt ved at $\tilde{\omega}$ må være reell for at løsningen ikke skal blåse opp. Da må
+\begin{equation}
+	\frac{\omega\Delta t}{2} \in [-1, 1]
+\end{equation}
+Altså må
+\begin{equation}
+	|\omega \Delta t| \leq 2
+\end{equation}
+for at vi skal få en stabil løsning.
+
+\begin{itemize}
+\item Viktigste parameter for løsningene er $\omega \Delta t$
+\item Antall tidssteg i hver periode er $N_p = \frac{2\pi }{\omega \Delta t}$
+\item $p=\omega \Delta t \leq 2$ gir konstant amplitude på løsningen.
+\item Det er en relativ fasefeil på $\tilde{\omega}/\omega \approx 1 + \frac{1}{24}p^2$ relativt til løsningen av den kontinuerlige likningen.  
+\end{itemize}
+
+
+\section{Bølgelikningen i 1D}
+\begin{equation}
+	u_{tt} = c^2 u_{xx} 
+\end{equation}
+En sentrert differanse ser slik ut:
+\begin{equation}
+	[D_t D_t u = c^2 D_x D_x u]_i^n
+\end{equation}
+Dette gir en formel for det neste tidssteget:
+\begin{equation}
+	u^{n+1}_i = -u^{n-1}_i + 2u^n_i + C^2
+\left(u^{n}_{i+1}-2u^{n}_{i} + u^{n}_{i-1}\right)
+\end{equation}
+Der vi har definert Couranttallet $C = c\frac{\Delta t}{\Delta x}$
+
+\subsection{Stabilitetsanalyse}
+Vi vet at løsiningene av den kontinuerlige bølgelikningen er på formen $u(x, t) = e^{i(kx - \omega t)}$. Derfor ser vi etter løsninger av den diskrete likningen på formen 
+\begin{equation}
+	u_q^n = e^{i(kx_q - \tilde{\omega }t_n)}
+\end{equation}
+
+Dette er kun en bølgekomponent, så interessante løsninger av bølgelikninen må bygges opp av mange slike. I stabilitetsanalysen vil vi derfor kreve at løsningene skal være stabile for alle $k$ og $\omega$.
+
+Vi begynner med å sette inn denne løsningen for de endelige differansene:
+\begin{equation}
+	[D_tD_t e^{i\omega t}]^n = -\frac{4}{\Delta t^2}\sin^2\left(
+\frac{\omega\Delta t}{2}\right)e^{i\omega n\Delta t}
+\end{equation}
+\begin{equation}
+	[D_xD_x e^{ikx}]_q = -\frac{4}{\Delta x^2}\sin^2\left(
+\frac{k\Delta x}{2}\right)e^{ikq\Delta x} 
+\end{equation}
+
+Så settes disse sammen i den diskrete likningen:
+\begin{equation}
+	\frac{4}{\Delta t^2}\sin^2\left(\frac{\tilde\omega\Delta t}{2}\right)
+= c^2 \frac{4}{\Delta x^2}\sin^2\left(\frac{k\Delta x}{2}\right)
+\end{equation}
+\begin{equation}
+	\sin^2\left(\frac{\tilde\omega\Delta t}{2}\right)
+= C^2\sin^2\left(\frac{k\Delta x}{2}\right)
+\end{equation}
+der $C = \frac{c\Delta t}{\Delta x}$
+
+
+Herifra ønsker vi å gjøre to ting:
+\begin{itemize}
+\item Finne stabilitetskriteriet $C\leq 1$
+\item finne fasefeilen $\tilde{\omega}/\omega$
+\end{itemize}
+
+Vi begynner med stabilitetskriteriet:
+Vi tar roten av likningen, og får 
+\begin{equation}
+	\sin\left(\frac{\tilde\omega\Delta t}{2}\right)
+= C\sin\left(\frac{k\Delta x}{2}\right)
+\end{equation}
+Siden $\omega$ er reell i den eksakte løsningen, er det naturlig å se etter reelle $\tilde{\omega}$ Dessuten er det den eneste løsningen som ikke divergerer. Dette skyldes at man vil få to komplekskonjugerte løsninger for $\tilde{\omega}$ om den er kompleks, hvorav en vil få løsningen til å vokse. 
+
+Når vi har krevd en reell $\tilde{\omega}$, har vi også sagt at $C\sin{\frac{k\Delta x}{2}} \in [-1, 1]$. Siden sinusleddet kan anta hele $[-1, 0]$, så må $C\leq 1$.
+
+Så tar vi den numeriske dispersjonsrelasjonen, som gir oss fasefeilen:
+Vi løser likningen for $\tilde{\omega}$:
+\begin{equation}
+	\tilde\omega = \frac{2}{\Delta t}
+\sin^{-1}\left( C\sin\left(\frac{k\Delta x}{2}\right)\right)
+\end{equation}
+
+Vi ser umiddelbart at for $C=1$ at $\tilde{\omega} = \frac{2}{\Delta t}\frac{k\Delta x}{2} = \omega$, slik at den numeriske løsningen er eksakt i meshpunktene. 
+
+
+Si noe om spesialtilfellet $C=1$, og at det tilsvarer en plug-wave som beveger seg et meshpunkt per tidssteg. Mer enn dette vil være kunstig, siden differanseskjemaet ikke ser lengre. 
+
+\subsection{Konsekvenser for artefakter}
+En faktisk initialbetingelse og løsning av bølgelikningen vil være en lineærkombinasjon av mange bølgekomponenter. Dersom man har et Couranttall som er $C<1$ vil korte bølger bevege seg saktere enn lange bølger. Dersom man har brukt mange bølgekomponenter for å bygge opp en form, vil denne formen kunne endre seg siden bølgene den er bygget opp av beveger seg i forskjellig hastigheter. Funksjoner som inneholder diskontinuiteter krever mange korte bølger for å representeres. For initialbetingelse som krever stort innslag av korte bølger, vil man se mye artefakter for store tidssteg. Dette ser man spesielt godt dersom man ser på bølger som skifter medium, siden det ene mediet da nødvendigvis må ha $C \neq 1$
+***Her kan man smelle inn hvordan man finne fourierkoeffisienter***
+
+
+\section{Korreksjonstermer så skjemaet for svingelikning blir $\Delta t^4$}
+
+\section{Korreksjonstermer så skjemaet for bølgelikningen blir $\Delta x^4, \Delta t^4$}
 \end{document}
