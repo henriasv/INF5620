@@ -61,9 +61,24 @@ Vi kan sette opp:
 \end{equation}
 At $e$ er ortogonal på $V$ er det samme som at $(e, v) = 0 \  \forall v \in V$. For vårt spesifikke valg av basisfunksjoner $\psi_j$, får vi:
 \begin{equation}
-	(e, \psi_j) = 0 \ \forall i \in \mc{I}_s
+	(e, \psi_i) = 0 \ \forall i \in \mc{I}_s
+\end{equation}
+Vi setter så inn at $e = f - \sum_{j\in \mc{I}_s} c_j \psi_j$. Det gir at
+\begin{equation}
+	(f - \sum_{j\in \mc{I}_s} c_j \psi_j, \psi_i), i \in \mc{I}_s
+\end{equation}
+Vi ser at dette blir 
+\begin{equation}
+	\sum_{j \in \mc{I}_s} (\psi_j, \psi_i)c_j = (f, \psi_i), i\in \mc{I}_s
 \end{equation}
 
+Dette er et lineært likningssett $A\mb{c} = b$, som kan løses for $\mb{c}$.
+\begin{equation}
+	A_{i, j} = (\psi_i, \psi_j)
+\end{equation}
+\begin{equation}
+	b_i = (f, \psi_i)
+\end{equation}
 
 \section{}
 
