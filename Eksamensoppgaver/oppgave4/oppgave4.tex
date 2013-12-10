@@ -34,6 +34,9 @@ Discretize in time by a centered difference: $u_{tt}(x_i,t_n)\approx[D_t D_tu]^n
 
 \subsection{d} Set up the discrete equations for this wave problem on operator form (assume P1 elements). Briefly explain the idea of an analysis of the scheme based on exact solution of the discrete equations. State the main results. Compare the main results with those of the finite difference method (Problem 3: Analysis of wave problems). 
 
+\section{Hvordan legge opp oppgaven?}
+Jeg kommer til å bruke mest tid på oppgave b og c, siden disse på sett og vis illustrerer hele elementmetoden, og jeg har fått mye innsikt av å jobbe gruyndig med disse. 
+
 \section{Tilnærming av initialbetingelsen}
 \subsection{Interpolasjon (Kolokasjon)}
 Ideen med interpolasjon er at den tilnærmede funksjonen skal ha samme verdi som den opprinnelige funksjonen på et endelig sett med punkter $x_i \in \mc{I}_s$:
@@ -72,7 +75,7 @@ Vi ser at dette blir
 	\sum_{j \in \mc{I}_s} (\psi_j, \psi_i)c_j = (f, \psi_i), i\in \mc{I}_s
 \end{equation}
 
-Dette er et lineært likningssett $A\mb{c} = b$, som kan løses for $\mb{c}$.
+Dette er et lineært likningssett $A\mb{c} = \mb{b}$, som kan løses for $\mb{c}$.
 \begin{equation}
 	A_{i, j} = (\psi_i, \psi_j)
 \end{equation}
@@ -80,6 +83,132 @@ Dette er et lineært likningssett $A\mb{c} = b$, som kan løses for $\mb{c}$.
 	b_i = (f, \psi_i)
 \end{equation}
 
-\section{}
+For initialbetingelsen spesielt, så setter vi $b_i = I(x_i), i \in \mc{I}_s$.
 
+\section{Tidsdiskretisering og variasjonell formulering}
+Vi diskretiserer $u_{tt} = c^2 u_{xx} + f$ med sentrert differanse i tid:
+\begin{equation}
+	\frac{u^{n+1} - 2 u^n + u^{n-1}}{\Delta t^2} = c^2 u_{xx} + f
+\end{equation}
+\begin{equation}
+	 \mathcal{L}(u) = -u^{n+1} +2u^n - u^{n-1} + c^2 \Delta t^2 (u_{xx} + f) = 0
+\end{equation}
+Vi har altså en diskret likning i tid, og en kontinuerlig i rom. Vi ønsker nå å tilnærme den romlige løsningen med elementfunksjoner. Da kommer ikke løsningen til å tilfredsstille likningen over, men vi kan lage løsningen slik at den minimerer feilen, nemlig ved å kreve at feilen står ortogonalt på rommet vi utspenner løsningen i.
+
+Vi tenker nå at $u = \sum_{j \in \mc{I}_s} c_j \psi_j$, altså at $u$ er utspent i et rom $V = \mbox{span}\{\psi_1, ..., \psi_N\}$
+
+Vi setter altså at:
+\begin{equation}
+	R = \mathcal{L}(u)
+\end{equation}
+og krever at
+\begin{equation}
+	(R, v) = 0, \ \forall v \in V
+\end{equation}
+som er variasjonsformuleringen.
+
+Vi skriver nå om likningen til ny tidsnotasjon: $u \equiv u^{n+1}$, $u_1 \equiv u^n$, $u_2 \equiv u^{n-1}$.
+
+Da ser variasjonsformuleringen vår ut som dette:
+\begin{equation}
+(u, v) = 2(u_1, v) - (u_2, v) + c^2\Delta t^2\left[(u_{1, xx}, v) + (f, v)\right]
+\end{equation}
+
+Så er vi ikke så glade i å derivere løsningene våre to ganger, så vi delvis integrerer den dobbelderiverte, noe som gir oss en naturlig måte å takle grensebetingelser på.
+
+Delvis integrasjonen gir
+\begin{equation}
+	\int_0^L u_{xx} v \ dx = [u_xv]_0^L - \int_0^L u_xv_x \ dx
+\end{equation}
+Vi ser at $[u_xv]_0^L = 0$ siden grensebetingelsene er $u_x(0) = u_x(L) = 0$.
+Dermed blir varisjonsformuleringen:
+\begin{equation}
+	(u, v) = 2(u_1, v) - (u_2, v) + c^2\Delta t^2\left[(u_{1,x}, v_x) + (f, v)\right]
+\end{equation}
+
+Vi setter så inn den faktiske ekspansjonen av $u$:
+\begin{equation}
+	\sum_{j \in \mc{I}_s } (\psi_j, \psi_i)c_j = 2\sum_{j \in \mc{I}_s }(\psi_j, \psi_i)c_{1, j} - \sum_{j \in \mc{I}_s }(\psi_j, \psi_i)c_{2, j} + c^2\Delta t^2 \left[\sum_{j \in \mc{I}_s } (\psi_j', \psi_i')c_{1, j} + (f, \psi_i)\right]
+\end{equation}
+
+Vi ser så nærmere på leddet som kommer fra $u_{xx}$, nemlig $\sum_{j \in \mc{I}_s } (\psi_j', \psi_i')c_{1, j}$. 
+Dette leddet er i prinsippet en matrise og en vektor, slik at 
+\begin{equation}
+	A_{i, j} = \int_0^L \psi_j'(x)\psi_i'(x) \ dx
+\end{equation}
+For ordens skyld skifter vi til elementbasisfunksjoner
+\begin{equation}
+	A_{i, j} = \int_0^L \varphi_j'(x)\varphi_i'(x) \ dx
+\end{equation}
+
+Vi ser så på P1-elementene, og innser at:
+\begin{itemize}
+\item $\varphi_{i-1}'\varphi_i' = -\frac{1}{h^2}$ på $(x_i-h, x_i)$ og $0$ ellers
+\item $\varphi_{i}'\varphi_i' = \frac{1}{h^2}$ på $(x_i-h, x_i+h)$ og $0$ ellers
+\item $\varphi_{i+1}'\varphi_i' = -\frac{1}{h^2}$ på $(x_i, x_i+h)$ og $0$ ellers
+\end{itemize}
+Dette gir oss at
+\begin{itemize}
+\item $A_{i, i-1} = \int_0^L \varphi_i'(x)\varphi_{i-1}'(x) \ dx = \int_{x_{i-1}}^{x_i} -\frac{1}{h^2} = -\frac{1}{h}$
+\item $A_{i, i} = \int_0^L \varphi_i'(x)\varphi_i'(x) \ dx = \int_{x_{i-1}}^{x_{i+1}} \frac{1}{h^2} = \frac{2}{h}$
+\item $A_{i, i+1} = \int_0^L \varphi_i'(x)\varphi_{i+1}'(x) \ dx = \int_{x_{i}}^{x_{i+1}} -\frac{1}{h^2} = -\frac{1}{h}$
+\end{itemize}
+Dette gir en tridiagonal matrise
+\begin{equation}
+K = \frac{1}{h}\left(
+	\begin{array}{ccccccccc}
+2 & -1 & 0
+&\cdots &
+\cdots & \cdots & \cdots &
+\cdots & 0 \\ 
+-1 & 2 & -1 & \ddots &   & &  & &  \vdots \\ 
+0 & -1 & 2 & -1 &
+\ddots & &  &  & \vdots \\ 
+\vdots & \ddots &  & \ddots & \ddots & 0 &  & & \vdots \\ 
+\vdots &  & \ddots & \ddots & \ddots & \ddots & \ddots & & \vdots \\ 
+\vdots & &  & 0 & -1 & 2 & -1 & \ddots & \vdots \\ 
+\vdots & & &  & \ddots & \ddots & \ddots &\ddots  & 0 \\ 
+\vdots & & & &  &\ddots  & \ddots &\ddots  & -1 \\ 
+0 &\cdots & \cdots &\cdots & \cdots & \cdots  & 0 & -1 & 2
+\end{array}
+\right)
+\end{equation}
+Denne matrisen kalles forøvrig \emph{stivhetsmatrisen}, $K$.
+\section{Assemblering}
+For å forklare assemblering av matrise må vi ta en litt annerledes vinkling på problemet. Nemlig at vi utfører integraler for hvert element, og deretter setter sammen den globale matrisen.
+
+\section{Sammenlikning med finite difference}
+Hovedtanken når vi sammenlikner med finite difference er å plukke ut den i'te raden i matriselikningen vi løser og skrive det om med differanseoperatorer. 
+Vi forholder oss fortsatt til likningen
+\begin{equation}
+	\sum_{j \in \mc{I}_s } (\psi_j, \psi_i)c_j = 2\sum_{j \in \mc{I}_s }(\psi_j, \psi_i)c_{1, j} - \sum_{j \in \mc{I}_s }(\psi_j, \psi_i)c_{2, j} + c^2\Delta t^2 \left[\sum_{j \in \mc{I}_s } (\psi_j', \psi_i')c_{1, j} + (f, \psi_i)\right]
+\end{equation}
+
+For å gjøre ting mer håndterbart skriver vi den på matriseform.
+Vi definerer oss følgende:
+\begin{itemize}
+\item $K = \{\sum (\psi_i', \psi_j')\}$
+\item $M = \{\sum (\psi_i, \psi_j)\}$
+\item $\mb{f} = \{(f, \psi_i)\}$
+\end{itemize}
+
+\begin{equation}
+	M\mb{c} = 2M\mb{c}_1 - M\mb{c_2} + c^2\Delta t^2 (K\mb{c}_1 + \mb{f})
+\end{equation}
+Vi ønsker nå å skrive dette tilbake til et format som er sammenliknbart med endelige differanser, for å se hvilke modifikasjoner vi har gjort i forhold til den metoden.
+
+Vi vet at $K-matrisen$ anvendt på forrige sett med P1-koeffisienter tilsvarer en standard sentrert differanseoperator.
+\begin{equation}
+Kc_i^n = [D_x D_x u]_i^n
+\end{equation}
+Så vet vi tilsvarende om $M$-matrisen
+\begin{equation}
+	Mc_i^n = [u-\frac{1}{6}h^2 D_x D_x u]_i^n
+\end{equation}
+
+Dette lar oss skrive hele den diskrete likningen som
+\begin{equation}
+	\left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^{n+1} = 2\left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^n - \left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^{n-1} + c^2 \Delta t^2 \left[D_xD_xu\right]_i^n
+\end{equation}
+Vi ser bort ifra driveleddet f akkurat nå, for enkelhets skyld. 
 \end{document}
