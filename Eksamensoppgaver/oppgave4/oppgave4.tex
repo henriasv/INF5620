@@ -210,5 +210,14 @@ Dette lar oss skrive hele den diskrete likningen som
 \begin{equation}
 	\left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^{n+1} = 2\left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^n - \left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^{n-1} + c^2 \Delta t^2 \left[D_xD_xu\right]_i^n
 \end{equation}
-Vi ser bort ifra driveleddet f akkurat nå, for enkelhets skyld. 
+Vi ser bort ifra driveleddet f akkurat nå, for enkelhets skyld. Dersom vi nå deler på $\Delta t^2$, og flytter de tre like parentesene til venstre side, ser vi at vi har en sentrert differanse i tid av hele parentesen:
+\begin{equation}
+	D_tD_t\left[u-\frac{1}{6} h^2 D_xD_x u\right]_i^n = c^2[D_xD_xu]_i^n
+\end{equation}
+
+\subsection{Stabilitet og fasefeil}
+Venter litt med denne. 
+
+
+
 \end{document}

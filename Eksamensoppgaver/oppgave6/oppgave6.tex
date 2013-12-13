@@ -10,11 +10,243 @@
 \newcommand{\n}{\nabla}
 
 \author{Henrik Andersen Sveinsson}
-\title{Eksamensoppgave 6 - INF5620}
+\title{Eksamensoppgave 6 - INF5620 \\ \large Finite element calculations with P2 elements }
 \date{\today}
 
 
 \begin{document}
 \maketitle
 
+\section{Oppgavetekst}
+ We address the problem
+\begin{equation}
+−u''(x)=2, \ x \in (0,1), \ u(0)=\beta, \ u(1)=\gamma,
+\end{equation}
+and seek a numerical solution $u$ in some vector space $V$ (modulo boundary conditions) with basis $\{\psi_i\}^N_{i=0}$.
+
+\subsection*{a} Explain the principles of the least squares method, the Galerkin method, and the collocation method. Describe a method to incorporate the boundary conditions.
+
+\subsection*{b} Let $V=\mbox{span}\{\sin\pi x\}$, and compute the solution corresponding to the least squares method, the Galerkin method, and the collocation method (the latter with $x=0.5$ as collocation point). Set $\beta=\gamma=2$ for simplicity. What are the errors in each of the approximate method?
+
+\subsection*{c} Now we want to use P2 elements on a uniform mesh. Explain how to calculate the element matrix and vector for cells in the interior of the mesh (those not affected by boundary conditions) and set up the results. Describe how the element matrix and vector are assembled into the global linear sytem.
+
+\subsection*{d} Use only one element and explain how the boundary conditions affect the element matrix and vector. Why does this numerical solution coincide with the exact one? Two equal-sized P1 elements lead to exact values at the nodes. Sketch these P2 and P1 solutions.
+
+\subsection*{e} The equations in the global linear system corresponding to the mid nodes in P2 elements can be eliminated. Perform this elimination, but in the presentation just quote the new equations associated with the nodes on the cell boundaries. 
+
+\section{Eksakt løsning}
+For ordens skyld setter vi opp den eksakte løsningen av likningen:
+\begin{equation}
+	u(x) = -x^2 + x + 2
+\end{equation}
+
+\section{Approksimasjon av funksjoner}
+
+\subsection{Minste kvadrater}
+
+\subsection{Galerkin (Projeksjon)}
+
+\subsection{Kolokasjon (Interpolasjon)}
+
+\section{Løsning for $V = \{\sin \pi x\}$}
+
+Vi setter først opp residualet:
+\begin{equation}
+	R(u) = u''(x) +2
+\end{equation}
+
+Vi ønsker å skrive løsningen vår som
+\begin{equation}
+	u(x) = u_0(x) + c\sin{\pi x}
+\end{equation}
+
+
+Siden vi utspenner den i et ganske enkelt rom, og modulo randbetingelser.
+Siden randbetingelsen er $\beta = \gamma = 2$, setter vi $u_0(x) = 2$.
+
+\subsection{Minste kvadrater}
+Med minste kvadraters metode ønsker vi å minimere $(R, R)$:
+\begin{equation}
+	(u''+2, u'' +2) = ((2+c\sin{\pi x})''+2, (2+c\sin{\pi x})''+2)
+\end{equation}
+\begin{equation}
+	= (-c\pi^2\sin{\pi x}+2, -c\pi^2\sin{\pi x}+2)
+\end{equation}
+Med sympy finner vi til slutt at 
+\begin{equation}
+	(R, R) = \frac{1}{2} \pi^{4} c^{2} - 8 \pi c + 4
+\end{equation}
+Vi deriverer så med hensyn på ekspansjonskoeffisienten:
+\begin{equation}
+	\frac{d(R, R)}{dc} = \pi^4 c - 8\pi
+\end{equation}
+
+Feilen minimeres i nullpunktet til denne funksjonen:
+\begin{equation}
+	c = \frac{8}{\pi^3}
+\end{equation}
+
+Vi kan for ordens skyld se på størrelsen av $(R, R)$ i sitt minimum:
+\begin{equation}
+	(R, R)(c=-\frac{8}{\pi^3}) = (R,R)_{min} = - \frac{32}{\pi^{2}} + 4 = 0.757722
+\end{equation}
+
+\subsection{Galerkin}
+Med galerkin krever vi at residualen står ortogonalt på løsningsrommet.
+\begin{equation}
+	(R, v) = 0
+\end{equation}
+\begin{equation}
+	(R, v) = \int_0^1 (-c\pi^2\sin{\pi x}+2)\sin(\pi x) \ dx
+\end{equation}
+Dette gir med sympy:
+\begin{equation}
+	(R, v) = - \frac{1}{2} \pi^{2} c + \frac{4}{\pi}
+\end{equation}
+Som vil si at 
+\begin{equation}
+	c = \frac{8}{\pi^{3}}
+\end{equation}
+Dette er samme resultat som med minste kvadrater. 
+
+\subsection{Kolokasjon}
+Vi setter at tilnærmingen skal være slik at likningen er oppfylt i punktet $x=0.5$.
+\begin{equation}
+	-u''(0.5) = 2
+\end{equation}
+\begin{equation}
+	-c\pi^2\sin{\pi x} = 2
+\end{equation}
+Gir at dersom man baserer seg på ett punkt, skal koeffisienten $c$ være gitt som
+\begin{equation}
+	c = - \frac{2}{\pi^{2} \sin{\left (\pi x \right )}}
+\end{equation}
+Innsatt for $x = 0.5$ får vi
+\begin{equation}
+	c = \frac{2}{\pi^2}
+\end{equation}
+Som gir en feil på 
+\begin{equation}
+	(R,R)_{interpolate} = - \frac{16}{\pi} + 6 = 0.907042
+\end{equation}
+
+Galerkin og minste kvadrater har altså lik feil, som forventet, mens interpolasjonen gir en annen løsning. 
+
+\section{Løsning med P2-elementer på uniformt mesh}
+Vi skal løse difflikningen med variasjonsformulering $(u', v') = (2, v)$
+For P2-elementer bruker vi lagrange-polynomer til 2. orden innenfor hvert element:
+\begin{align}
+\tilde\varphi_0(X) &= \frac{1}{2} (X-1) X \\
+\tilde\varphi_1(X) &= 1-X^2 \\
+\tilde\varphi_2(X) &= \frac{1}{2} (X+1) X
+\end{align}
+På $[-1, 1]$ er disse funksjonene slik at $\tilde\varphi_i(X_{(j)}) = \delta_{ij}$.
+Vi innfører et uniformt mesh i den globale variablen $x$ med meshavstand $h$. Den lokale variablen $X$ legger et intervall $x_m-h, x_m +h$ over på $[-1, 1]$. Altså er
+\begin{equation}
+	\frac{dX}{dx} = \frac{2}{h}
+\end{equation}
+Som vi kan se ved å sammenlikne intervalllengder i der forskjellige koordinatsystemene. 
+
+Vi ser nå på et element i det indre av meshet, og regner ut elementmatrisen.
+\begin{equation}
+ 	\tilde A^{(e)}_{r, s} = (\tilde\varphi_r', \tilde\varphi_s')
+ \end{equation} 
+ Her skal basisfunksjonene deriveres med hensyn på den globale variablen $x$, ikke den lokale $X$. 
+
+Helt spesifikt ser det slik ut:
+\begin{equation}
+	\tilde A^{(e)}_{r, s} = \int_{\Omega} \tilde\varphi_r'\tilde\varphi_s' dx = \int_{-1}^1 \frac{d\tilde\varphi_r}{dX} \frac{d X}{d x}\frac{d\tilde\varphi_s}{dX} \frac{d X}{d x} \frac{d x}{dX} dX
+\end{equation}
+
+ Da ser matrisen ut som, beregnet for P2-elementer med sympy:
+ \begin{equation}
+ \tilde A^{(e)} = \frac{1}{3h}
+ \left\lbrack
+ \begin{array}{ccc}
+7 & -8 & 1 \\  
+-8 & 16 & -8 \\  
+1 & -8 & 7 \\  
+\end{array}
+\right\rbrack
+ \end{equation}
+Så ser vi på elementvektoren. 
+\begin{equation}
+	\tilde b^{(e)}_r = \int_{-1}^1 2\tilde\varphi_r\frac{dx}{dX}dX = \int_{-1}^1 h\tilde\varphi_r dX
+\end{equation}
+\begin{equation}
+	\tilde b^{(e)} = \frac{h}{3}\left\lbrack
+	\begin{array}{c}
+1 \\
+4 \\
+1 \\
+\end{array}
+\right\rbrack
+\end{equation}
+
+Det er laget en mapping som tar elementer inn i den globale matrisen. Dersom man har regulær nummerering, vil det være overlapp av hjørenene nedover hoveddiagonalen. Det blir også overlapp i $b$-vektoren. Dette skyldes at elementer deler på randnodene. 
+*** Mer om assembly ***
+Foreløpig ignorerer vi randen
+
+\section{Ett P2-element med randbetingelser}
+
+Vi tar utgangspunkt i matrisen fra forrige oppgave, og legger nå på randbetingelsen.
+Siden vi har dirichletbetingelse, trenger vi bare å endre første og siste rad, for å tilfredsstille $u_0=\beta$, og $u_N = \gamma$.
+
+Da får vi:
+\begin{equation}
+	 \tilde A^{(e)} = \frac{1}{3h}
+ \left\lbrack
+ \begin{array}{ccc}
+3h & 0 & 0 \\  
+-8 & 16 & -8 \\  
+0 & 0 & 3h \\  
+\end{array}
+\right\rbrack
+\end{equation}
+
+og
+\begin{equation}
+\tilde b^{(e)} =
+\left\lbrack
+\begin{array}{c}
+\beta \\
+\frac{4h}{3} \\
+\gamma
+\end{array}
+\right\rbrack
+\end{equation}
+
+Setter så inn at $h=1$, og får at matriselikningen
+\begin{equation}
+	\tilde{A^{(e)}} \mb{c} = \tilde{\mb{b}}
+	\end{equation}
+Har løsning:
+
+\begin{equation}
+\tilde{\mb{c}}=
+\left\lbrack
+\begin{array}{c}
+2 \\
+2.25 \\
+2
+\end{array}
+\right\rbrack
+\end{equation}
+
+Denne løsningen er den samme som den eksakte løsningen. Det skyldes at den eksakte løsningen kan skrives som en lieærkombinasjon av $P2$-elementer. Vi må vise at dersom den eksakte løsningen kan skrives i basisen vi velger, så vil Finite Element-metoden finne denne. 
+Vi begynner med å anta at løsningen vi har fått, $u$, er en funksjon $E \in V$. Så antar vi at den ekssakte løsningen er $u_e = F \in V$.
+
+Begge likningene løser variasjonsformuleringen. $u$ løser den per definisjon, og $u_e$ løser den fordi $(R, v) = (0, v) = 0$. 
+
+Nå kan vi sette opp liningen på abstrakt form:
+\begin{align}
+	a(E, v) = \mc{L}(v) \\
+	a(F, v) = \mc{L}(v)
+\end{align}
+Siden $a$ er lineær i $u$, så kan vi ta differansen mellom likningene
+\begin{equation}
+	a(E-F, v) = \mc{L}(v) 
+\end{equation}
+
 \end{document}
+
