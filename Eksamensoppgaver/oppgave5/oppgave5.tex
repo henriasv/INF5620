@@ -8,6 +8,7 @@
 \newcommand{\mb}{\mathbf}
 \newcommand{\mc}{\mathcal}
 \newcommand{\n}{\nabla}
+\newcommand{\half}{\frac{1}{2}}
 
 \author{Henrik Andersen Sveinsson}
 \title{Eksamensoppgave 5 - INF5620}
@@ -16,5 +17,108 @@
 
 \begin{document}
 \maketitle
+
+\section{Oppgavetekst}
+We look at the PDE problem 
+\begin{align*}
+u_t &= \nabla\cdot ((1+\alpha_0u^4)\nabla u),\quad & \mb{x} \in\Omega,\
+t >0\\
+u(\mb{x},0) &= I(\mb{x}),\quad &\mb{x}\in\Omega\\
+u(\mb{x},t) &= g(\mb{x}),\quad &\mb{x}\in\partial\Omega_D,\ t>0\\
+-(1+\alpha_0u^4)\frac{\partial}{\partial n} u(\mb{x}, t) &= h(u - T_s),\quad
+&\mb{x}\in\partial\Omega_R
+\end{align*}
+
+Here, u(x,t) is the temperature in some solid material, $I$ is the initial temperature, $g$ is the controlled temperature at a part $\partial \Omega_D$ of the boundary, while at the rest of the boundary, $\partial \Omega_D$, we apply Newton's cooling law with h as a heat transfer coefficient and $T_s$ as the temperature in the surrounding air.
+
+\subsection{a}
+Perform a Crank-Nicolson time discretization and define a Picard iteration method for the resulting spatial problems. (Do not pay attention to the boundary conditions.)
+
+\subsection{b} Perform a Backward-Euler time discretization and derive the variational form for the resulting spatial problems. Use a Picard iteration method to linearize the variational form.
+
+\subsection{c} Apply Newton's method to the nonlinear variational form $F=0$ in b). Set up expressions for the right-hand side ($−F$) and the coefficient matrix (Jacobian of $F$) in the linear system that must be solved in each Newton iteration.
+
+\section{Crank-Nicolson i tid og FEM med Picard i rom}
+Vi begynner med å sette opp en Crank-Nicolson-diskretisering av tidsproblemet:
+\begin{equation}
+\frac{u^{n+1}- u^n}{\Delta t} = \left[\nabla \cdot ((1+\alpha_0 u^4 )\nabla u)\right]^{n+\half}
+\end{equation}
+For å evaluere i $n+\half$ velger vi et geometrisk snitt på det ikke-lineære leddet, og et aritmetisk snitt for $u$-en bak nabla-operatoren. Vi innfører samtidig notasjonen $u^{n+1} = u$, $u^n = u_1$.
+\begin{equation}
+  \frac{u- u_1}{\Delta t} = \nabla \cdot (1+\alpha_0 u^2u^2_1)\half\nabla(u+u_1)
+\end{equation}  
+Dette leder til 
+\begin{equation}
+	u - \Delta t \nabla \cdot ((1-\alpha_0u^2u_1^2)\nabla u) = 2u_1 + \Delta t \nabla \cdot((1-\alpha_0u^2u_1^2)\nabla u_1)
+\end{equation}
+
+I denne linkningen er det kun $u$ som er ukjent. Den inngår som et lineært ledd bak nabla-operatoren, men som et ikke-lineært ledd foran. Vi kan bruke picard-iterasjon for å løse dette problemet, og håpe på at løsningen nærmer seg den riktige. 
+
+Picard-iterasjon går ut på at den ukjente i det ikke-lineære leddet "gjettes", i dette tilfellet gjetter vi i utgangspunktet $u = u_1$. Vi løser det romlige problemet med dette satt inn. Vi kaller denne løsningen $u\_$. $u\_$ går nå inn i de ikke-lineære leddene, som en litt bedre tilnærming til $u$ enn den vi hadde. Dette kan gjøres mange ganger, for å komme nærmere den eksakte løsningen av det romlige problemet. 
+
+For ordens skyld skriver vi opp Picard-formuleringen av likningen:
+\begin{equation}
+	u - \Delta t \nabla \cdot ((1-\alpha_0u^2_-u_1^2)\nabla u) = 2u_1 + \Delta t \nabla \cdot((1-\alpha_0u^2_-u_1^2)\nabla u_1)
+\end{equation}
+
+
+\section{Backward Euler og variasjonell formulering}
+Vi setter nå opp problemet med Backward Euler. Det gir penere regning, siden vi ikke trenger å snitte i halvstegene. Vi går rett på notasjonen som ligger tettest opp mot programmeringen. 
+
+\begin{equation}
+	\frac{u-u_1}{\Delta t} = \nabla \cdot ((1+\alpha_0u^4)\nabla u) 
+\end{equation}
+
+Vi setter så alle ledd med $u$ på venstre side
+
+\begin{equation}
+	u - \Delta t \nabla ((1+\alpha_0 u^4)\nabla u) = u_1 
+\end{equation}
+
+Så lager vi oss en variasjonell formulering:
+\begin{equation}
+(R, v) = 0
+\end{equation}
+
+Det gir:
+\begin{equation}
+	(u, v) + \Delta t \left[((1+\alpha_0u^4)\nabla u, \nabla v) - 
+	\left( (1+\alpha_0 u^4) \frac{\partial u}{\partial n}, v \right)_{\partial \Omega}\right] = (u_1, v)
+\end{equation}
+
+Her er det på tide å sette inn randbetingelsen:
+\begin{equation}
+	-(1+\alpha_0u^4)\frac{\partial}{\partial n} u(\mb{x}, t) = h(u - T_s),\quad
+\mb{x}\in\partial\Omega_R
+\end{equation}
+
+Dette gir oss en endelig varisajonell formulering:
+\begin{equation}
+	(u, v) + \Delta t \left[((1+\alpha_0u^4)\nabla u, \nabla v) + 
+	\left( h(u-T_s), v \right)_{\partial \Omega}\right] = (u_1, v)
+\end{equation}
+
+Så innfører vi picard-iterasjon for å linearisere den variasjonelle formen. Det er i praksis bare å sette inn $u\_$ i alle de ikke-lineære leddene. 
+
+***Har kun tatt med den ene delen av randen, $\Omega_R$, $\Omega_D$ må også med***
+
+\section{Newtons metode på den ikke-lineære variasjonelle formuleringen}
+Det skal finnes en $u$ som oppfyller den variasjonelle formuleringen. Målet med Newtons metode er å finne denne ved å følge gradienten til den variasjonelle formuleringen med hensyn på ekspansjonskoeffisientene i den basisen vi velger å utspenne løsningen i. 
+
+Vi setter opp likningen vi vil løse for newtons metode:
+\begin{equation}
+	F = 0
+\end{equation}
+\begin{equation}
+	(u, v) + \Delta t \left[((1+\alpha_0u^4)\nabla u, \nabla v) + 
+	\left( h(u-T_s), v \right)_{\partial \Omega}\right] -(u_1, v) = 0
+\end{equation}
+
+Nå antar vi at $u = \sum_{j \in \mc{I}_s} c_j\psi_j$.
+
+Vi må regne ut jacobimatrisen til $F$:
+\begin{equation}
+	J_{i, j} = \frac{\partial F_i}{\partial c_j}
+\end{equation}
 
 \end{document}
