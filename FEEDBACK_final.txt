@@ -1,0 +1,9 @@
+Bra kvalitet på det du har gjort. Alt ser riktig ut.
+
+Setter pris på konvergensen din med MMS der du bemerker at Picard
+iterasjonen må være mye mindre enn feilen Backward Euler gir.
+
+f: numerisk integrasjon brukes i elementmetode-programmer og
+gir en feil, dog liten, sammenlignet med diskretiseringen.
+
+Hans Petter
