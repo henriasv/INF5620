@@ -38,7 +38,7 @@ Mention a physical problem where this mathematical model arises. Explain the phy
 \section{Bølgelikningen på grunt vann i 2D}
 
 \begin{equation}
-	\frac{\p^2}{\p t^2} u(t, x, y) = \frac{\p}{\p x} \left(q(x, y) \frac{\p}{\p x} u\right) + \frac{\p}{\p y} \left(q(x, y) \frac{\p}{\p y} u\right)
+	u_{tt} = (qu_x)_x + (qu_y)_y
 \end{equation}
 
 Denne likningen oppstår ved modellering av tsunamier. Jeg har antatt en konstant tetthet, slik at den kan inngå i funksjonen $q$. Den ukjente funksjonen $u$ er vannivået relativt til gjennomsnittlig vannivå. $q(x, y) = v(x, y)^2$ der $v$ er bølgehastigheten. Grensebetingelsen som vi vil sette opp er $\frac{\p u}{\p n} = 0$, som er en Neumannbetingelse.
@@ -46,11 +46,9 @@ Denne likningen oppstår ved modellering av tsunamier. Jeg har antatt en konstan
 
 \section{Finite difference diskretisering}
 
-Her velger jeg å bruke tilfellet at $q$ er konstant, for å få litt mindre å skrive. Jeg tenker det er fornuftig når det kun er 15 minutter. 
-(Spørre HPL om det er greit å anta dette her)
-Da ser likningen slik ut:
+En finite difference diskretisering ser slik ut
 \begin{equation}
-	u_{tt} = c^2(u_{xx} + u_{yy})
+	[D_tD_t u = D_xqD_xu + D_yqD_yu]_{i, j}^n
 \end{equation}
 
 Vi velger en sentert differanse i alle ledd, med $\Delta x = \Delta y = h$
@@ -71,17 +69,17 @@ Den enkleste randbetingelsen man kan tenke seg:
 Dette løser problemet vi hadde på randen. Dersom vi har en rand med kjente verdier trenger vi bare å regne ut verdiene strengt innenfor denne, og vi har dermed alltid tilgang til verdier som ligger ett hakk "utenfor" de verdiene vi regner ut. 
 
 \subsection{Neumannbetingelsen}
-Neumannbetingelsen går på den deriverte på randen, og vi setter $\frac{\p u}{\p n} = f(\mb{x})$ på $\p\Omega$. Dersom vi ser på områder som kun har normal i koordinatretningene, er det greit å takle disse randbetingelsene også, ved å gjøre en endelig differanse-tilnærming til randbetingelsen:
+Neumannbetingelsen går på den deriverte på randen, og vi setter $\frac{\p u}{\p n} = V(\mb{x})$ på $\p\Omega$. Dersom vi ser på områder som kun har normal i koordinatretningene, er det greit å takle disse randbetingelsene også, ved å gjøre en endelig differanse-tilnærming til randbetingelsen:
 \begin{equation}
-	\frac{u_{i+1}-u_{i-1}}{2h} = f(u_i)
+	\frac{u_{i+1}-u_{i-1}}{2h} = V(u_i)
 \end{equation}
 Dette gir 
 \begin{equation}
-	u_{i+1} = u_{i-1} + 2hf(u_i)
+	u_{i+1} = u_{i-1} + 2hV(u_i)
 \end{equation}
 For høyre og øvre grenseflate, og 
 \begin{equation}
-	u_{i-1} = u_{i+1} - 2hf(u_i) 
+	u_{i-1} = u_{i+1} - 2hV(u_i) 
 \end{equation}
 For venste og nedre grenseflate. 
 Her evaluerer man i prinsippet punkter som ligger utenfor domenet man jobber på, så dette legges inn før man regner funksjonsverdier på det indre av domenet.
@@ -97,37 +95,22 @@ Vi kjører en differansemetode på den deriverte av initialbetingelsen:
 	u^{-1}_{i,j} = u^1_{i,j} - 2\Delta t V_{i,j}
 \end{equation}
 
-Vi setter dette inn i det generelle skjemaet, og får for $u^1$
-\begin{equation}
-	u_{i, j}^{1} = 2u_{i,j}^0 - (u^1_{i,j} - 2\Delta t V_{i,j}) + \frac{c^2 \Delta t^2}{h^2}\left( u_{i+1, j}^0 + u_{i-1, j}^0 + u_{i, j+1}^0 + u_{i, j-1}^0 - 4u_{i,j}^0\right)
-\end{equation}
-
-Innsatt for initialbetingelse og snudd litt på, får vi:
-\begin{equation}
-	u_{i, j}^1 = I_{i,j} + 2\Delta t V_{i,j} + \frac{c^2\Delta t}{h^2} (I_{i+1, j} + I_{i-1, j} + I_{i, j+1}+I_{i, j-1} - 4I_{i,j})
-\end{equation}
-Her har vi eliminert dette "Ghost timestep" $-1$, så nå kan man regne ut $u^1$, og deretter kjøre algoritmen vanlig.
+Vi kan sette dette inn i finite difference-skjemaet og løse for første tidssteg. 
 
 
 \section{Utvidelse til 3D}
-Utvidelsen til 3D er nærmest triviell. Man legger på hele del-operatoren i likningen:
+Utvidelsen til 3D er nærmest triviell. Man legger på et ledd i $z-retning$. Da kan vi bruke $\nabla$-operatoren.
 \begin{equation}
-	u_{tt} = c^2 \nabla^2 u
+	u_{tt} = \nabla\cdot(q\nabla u)
 \end{equation}
 
-Dersom man tar med variabel bølgehastighet i rom, får man et numerisk skjema i 3D:
-\begin{align*}
-u^{n+1}_{i,j,k} &= - u^{n-1}_{i,j,k}  + 2u^{n}_{i,j,k} + \\ 
- & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i+1,j,k})(u^{n}_{i+1,j,k} - u^{n}_{i,j,k}) - \\ 
-&\qquad\quad \frac{1}{2}(q_{i-1,j,k} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i-1,j,k})) + \\ 
- & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i,j+1,k})(u^{n}_{i,j+1,k} - u^{n}_{i,j,k}) - \\ 
-&\qquad\quad\frac{1}{2}(q_{i,j-1,k} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i,j-1,k})) + \\ 
- & \frac{1}{\varrho_{i,j,k}}\frac{1}{\Delta x^2} ( \frac{1}{2}(q_{i,j,k} + q_{i,j,k+1})(u^{n}_{i,j,k+1} - u^{n}_{i,j,k}) -\\ 
-&\qquad\quad \frac{1}{2}(q_{i,j,k-1} + q_{i,j,k})(u^{n}_{i,j,k} - u^{n}_{i,j,k-1})) + \\ 
-+ &\qquad \Delta t^2 f^n_{i,j,k}
-\end{align*}
+Dette diskretiserer vi som:
+\begin{equation}
+	[D_t D_t u = D_xqD_x u + D_yqD_yu + D_zqD_zu]_{i, j, k}^n
+\end{equation}
 
 \section{Stabilitet i 3D}
+Nå skal vi se på stabiliteten til den numeriske skjemaet, og da kommer jeg til å anta at $q$ er konstant: $q(x, y, z) = c^2$. 
 Det er 3 ting jeg vil nevne her:
 \begin{itemize}
 \item Trunkeringsfeil
@@ -141,6 +124,12 @@ For å se på stabilitet, antar vi at løsningen må være bygget opp av bølgek
 \begin{equation}
 	u(x, y, z, t) = e^{i(k_x x + k_y y + k_z z - \tilde{\omega}t)}
 \end{equation}
+
+Vi vet at med sentert dobbel differanse får vi 
+\begin{equation}
+	D_tD_tu = -\frac{4}{\Delta t^2}\sin^2(\frac{\tilde{\omega}\Delta t}{2}) u
+\end{equation}
+
 Stabilitetskriteriet i 3d er:
 \begin{equation}
 	 \Delta t \leq \frac{1}{c \sqrt{ \frac{1}{\Delta x^2} + \frac{1}{\Delta y^2} + \frac{1}{\Delta z^2}}}
