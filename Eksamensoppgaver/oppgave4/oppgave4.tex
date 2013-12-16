@@ -85,6 +85,16 @@ Dette er et lineært likningssett $A\mb{c} = \mb{b}$, som kan løses for $\mb{c}
 
 For initialbetingelsen spesielt, så setter vi $b_i = I(x_i), i \in \mc{I}_s$.
 
+\subsection{Least Squares}
+For minste kvadrater ønsker vi å minimere kvadratet av residualen integrert over domenet:
+\begin{equation}
+	(R, R)_{min}
+\end{equation}
+Når vi skriver løsningen vår som en lineærkombinasjon av funksjoner i et funksjonsrom er dette ekvivalent med 
+\begin{equation}
+	\left( R, \frac{\partial R}{\partial c_i} \right) \ \forall i \in \mc{I}_s
+\end{equation}
+
 \section{Tidsdiskretisering og variasjonell formulering}
 Vi diskretiserer $u_{tt} = c^2 u_{xx} + f$ med sentrert differanse i tid:
 \begin{equation}
@@ -136,46 +146,35 @@ Dette leddet er i prinsippet en matrise og en vektor, slik at
 \begin{equation}
 	A_{i, j} = \int_0^L \psi_j'(x)\psi_i'(x) \ dx
 \end{equation}
-For ordens skyld skifter vi til elementbasisfunksjoner
+Dette er formelen for elementene i den globale matrisen. Så går vi over til enkeltelementer av typen $P1$.
+For ordens skyld skifter vi til elementbasisfunksjoner og integrerer over et referanseelement
 \begin{equation}
-	A_{i, j} = \int_0^L \varphi_j'(x)\varphi_i'(x) \ dx
+	\tilde{A}_{i, j} = \int_0^L \tilde{\varphi}_j'(X)\frac{dX}{dx}\tilde{\varphi}_i'(X)\frac{dX}{dx} \ \frac{dx}{dX} dX
 \end{equation}
 
-Vi ser så på P1-elementene, og innser at:
-\begin{itemize}
-\item $\varphi_{i-1}'\varphi_i' = -\frac{1}{h^2}$ på $(x_i-h, x_i)$ og $0$ ellers
-\item $\varphi_{i}'\varphi_i' = \frac{1}{h^2}$ på $(x_i-h, x_i+h)$ og $0$ ellers
-\item $\varphi_{i+1}'\varphi_i' = -\frac{1}{h^2}$ på $(x_i, x_i+h)$ og $0$ ellers
-\end{itemize}
-Dette gir oss at
-\begin{itemize}
-\item $A_{i, i-1} = \int_0^L \varphi_i'(x)\varphi_{i-1}'(x) \ dx = \int_{x_{i-1}}^{x_i} -\frac{1}{h^2} = -\frac{1}{h}$
-\item $A_{i, i} = \int_0^L \varphi_i'(x)\varphi_i'(x) \ dx = \int_{x_{i-1}}^{x_{i+1}} \frac{1}{h^2} = \frac{2}{h}$
-\item $A_{i, i+1} = \int_0^L \varphi_i'(x)\varphi_{i+1}'(x) \ dx = \int_{x_{i}}^{x_{i+1}} -\frac{1}{h^2} = -\frac{1}{h}$
-\end{itemize}
-Dette gir en tridiagonal matrise
+Her har vi tatt med jacobideterminanten $\frac{dx}{dX}$ og kjerneregelen på de deriverte elementfunksjonene. 
+
+P1-funksjoene på hver element er
 \begin{equation}
-K = \frac{1}{h}\left(
-	\begin{array}{ccccccccc}
-2 & -1 & 0
-&\cdots &
-\cdots & \cdots & \cdots &
-\cdots & 0 \\ 
--1 & 2 & -1 & \ddots &   & &  & &  \vdots \\ 
-0 & -1 & 2 & -1 &
-\ddots & &  &  & \vdots \\ 
-\vdots & \ddots &  & \ddots & \ddots & 0 &  & & \vdots \\ 
-\vdots &  & \ddots & \ddots & \ddots & \ddots & \ddots & & \vdots \\ 
-\vdots & &  & 0 & -1 & 2 & -1 & \ddots & \vdots \\ 
-\vdots & & &  & \ddots & \ddots & \ddots &\ddots  & 0 \\ 
-\vdots & & & &  &\ddots  & \ddots &\ddots  & -1 \\ 
-0 &\cdots & \cdots &\cdots & \cdots & \cdots  & 0 & -1 & 2
-\end{array}
-\right)
+	\tilde{\phi}_0(X)=\frac{1}{2}(1-X),\quad\tilde{\phi}_1(X)=\frac{1}{2}(1+X),
 \end{equation}
-Denne matrisen kalles forøvrig \emph{stivhetsmatrisen}, $K$.
+
+For $P1$-elementer $[-1, 1]$ er $\frac{dx}{dX} = h$.
+
+Det betyr at en elementmatrise blir:
+\begin{equation}
+\tilde{A}^{(e)} =\frac{1}{h}\left[	
+\begin{array}{cc}
+1 & -1 \\
+-1 & 1 
+\end{array}
+\right]
+\end{equation}
+
 \section{Assemblering}
-For å forklare assemblering av matrise må vi ta en litt annerledes vinkling på problemet. Nemlig at vi utfører integraler for hvert element, og deretter setter sammen den globale matrisen.
+Elementene vi jobber med har overlappende noder. Dersom vi antar at vi har regulær nummerering av nodene setter vi nå sammen den globale matrisen ved å la hjørnene på elementmatrisene overlappe langs hoveddiagonalen. 
+
+Den resulterende matrisen er $[-1 \ 2 \ -1]$ repeterende, med noen endringer ved randbetingelsene. Vi vil typisk bruke en randfunksjon for å inkorporere randbetingelser, og denne innføres ved å endre likningssystemet etterpå. Vi kan gjøre endringen symmetrisk ved å gjøre noen radoperasjoner på matrisen etterpå.
 
 \section{Sammenlikning med finite difference}
 Hovedtanken når vi sammenlikner med finite difference er å plukke ut den i'te raden i matriselikningen vi løser og skrive det om med differanseoperatorer. 
@@ -216,8 +215,15 @@ Vi ser bort ifra driveleddet f akkurat nå, for enkelhets skyld. Dersom vi nå d
 \end{equation}
 
 \subsection{Stabilitet og fasefeil}
-Venter litt med denne. 
+Vi vil se på løsningene av de diskrete likningene. Da kommer vi til å få ledd som setter krav på parametrene vi setter inn. Vi vil også se på forskjellen mellom bølgehastighet i den kontinuerlige og numeriske løsningen, for å analysere rippler i løsningen. Det viser seg at for at dette skjemaet skal være stabilt må 
+\begin{equation}
+	C \leq \frac{1}{\sqrt{3}}
+\end{equation}
+Dette kan sammenliknes med kriteriet i den vanlige finite difference approsimasjonen der $C \leq 1$
 
+Vi mister den fantastiske egenskapen at vi kan sette Couranttallet til 1 og få en eksakt løsning. 
+
+Vi kan også se på $\frac{\tilde{c}}{c}$ for finite element og finite difference, og se at i finite element har en annerledes dispersjonsrelasjon enn finite difference. 
 
 
 \end{document}

@@ -5,6 +5,7 @@
 \usepackage{cancel}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{geometry}
 \newcommand{\mb}{\mathbf}
 \newcommand{\mc}{\mathcal}
 \newcommand{\n}{\nabla}
@@ -39,17 +40,22 @@ Perform a Crank-Nicolson time discretization and define a Picard iteration metho
 \subsection{c} Apply Newton's method to the nonlinear variational form $F=0$ in b). Set up expressions for the right-hand side ($−F$) and the coefficient matrix (Jacobian of $F$) in the linear system that must be solved in each Newton iteration.
 
 \section{Crank-Nicolson i tid og FEM med Picard i rom}
+Først skriver vi likningen på generell form:
+\begin{equation}
+	u_t = \nabla \cdot(\alpha(u)\nabla u)
+\end{equation}
+
 Vi begynner med å sette opp en Crank-Nicolson-diskretisering av tidsproblemet:
 \begin{equation}
-\frac{u^{n+1}- u^n}{\Delta t} = \left[\nabla \cdot ((1+\alpha_0 u^4 )\nabla u)\right]^{n+\half}
+\frac{u^{n+1}- u^n}{\Delta t} = \left[\nabla \cdot (\alpha(u)\nabla u)\right]^{n+\half}
 \end{equation}
-For å evaluere i $n+\half$ velger vi et geometrisk snitt på det ikke-lineære leddet, og et aritmetisk snitt for $u$-en bak nabla-operatoren. Vi innfører samtidig notasjonen $u^{n+1} = u$, $u^n = u_1$.
+For å evaluere i $n+\half$ velger vi et aritmetisk snitt av hele høyresiden. Vi innfører samtidig notasjonen $u^{n+1} = u$, $u^n = u_1$.
 \begin{equation}
-  \frac{u- u_1}{\Delta t} = \nabla \cdot (1+\alpha_0 u^2u^2_1)\half\nabla(u+u_1)
+  \frac{u- u_1}{\Delta t} = \half\left[ \nabla \cdot (\alpha(u)\nabla u) + \nabla \cdot (\alpha(u_1) \nabla u_1) \right]
 \end{equation}  
 Dette leder til 
 \begin{equation}
-	u - \Delta t \nabla \cdot ((1-\alpha_0u^2u_1^2)\nabla u) = 2u_1 + \Delta t \nabla \cdot((1-\alpha_0u^2u_1^2)\nabla u_1)
+	u - \Delta t\half \nabla \cdot (\alpha(u)\nabla u) = u_1 + \Delta t\half \nabla \cdot (\alpha(u_1)\nabla u_1)
 \end{equation}
 
 I denne linkningen er det kun $u$ som er ukjent. Den inngår som et lineært ledd bak nabla-operatoren, men som et ikke-lineært ledd foran. Vi kan bruke picard-iterasjon for å løse dette problemet, og håpe på at løsningen nærmer seg den riktige. 
@@ -58,7 +64,7 @@ Picard-iterasjon går ut på at den ukjente i det ikke-lineære leddet "gjettes"
 
 For ordens skyld skriver vi opp Picard-formuleringen av likningen:
 \begin{equation}
-	u - \Delta t \nabla \cdot ((1-\alpha_0u^2_-u_1^2)\nabla u) = 2u_1 + \Delta t \nabla \cdot((1-\alpha_0u^2_-u_1^2)\nabla u_1)
+	u - \Delta t\half \nabla \cdot (\alpha(u_-)\nabla u) = u_1 + \Delta t\half \nabla \cdot (\alpha(u_1)\nabla u_1)
 \end{equation}
 
 
@@ -87,38 +93,67 @@ Det gir:
 \end{equation}
 
 Her er det på tide å sette inn randbetingelsen:
+
 \begin{equation}
 	-(1+\alpha_0u^4)\frac{\partial}{\partial n} u(\mb{x}, t) = h(u - T_s),\quad
 \mb{x}\in\partial\Omega_R
 \end{equation}
+og 
+\begin{equation}
+	u(\mb{x}, t) = g(x), \ x\in \Omega_D
+\end{equation}
+Vi bruker en Boundary-function på den delen av randen som har Dirichlet-betingelse. Det vil si at randbetingelsen er $u=0$ når vi setter opp variasjonsformuleringen. 
 
 Dette gir oss en endelig varisajonell formulering:
 \begin{equation}
 	(u, v) + \Delta t \left[((1+\alpha_0u^4)\nabla u, \nabla v) + 
-	\left( h(u-T_s), v \right)_{\partial \Omega}\right] = (u_1, v)
+	\left( h(u-T_s), v \right)_{\partial \Omega_R}\right] = (u_1, v)
 \end{equation}
 
 Så innfører vi picard-iterasjon for å linearisere den variasjonelle formen. Det er i praksis bare å sette inn $u\_$ i alle de ikke-lineære leddene. 
 
-***Har kun tatt med den ene delen av randen, $\Omega_R$, $\Omega_D$ må også med***
 
 \section{Newtons metode på den ikke-lineære variasjonelle formuleringen}
 Det skal finnes en $u$ som oppfyller den variasjonelle formuleringen. Målet med Newtons metode er å finne denne ved å følge gradienten til den variasjonelle formuleringen med hensyn på ekspansjonskoeffisientene i den basisen vi velger å utspenne løsningen i. 
 
-Vi setter opp likningen vi vil løse for newtons metode:
+Vi setter opp likningen vi vil løse for newtons metode. Vi setter $(1+\alpha_0 u^4) = \alpha(u)$ for penere notasjon. 
+Vi ønsker egentlig å løse
 \begin{equation}
 	F = 0
 \end{equation}
+men det klarer vi ikke pga det ikke-lineære leddet. Derfor går vi heller for å løse det for lineariseringen $\hat{F}$ av $F$. Når dette gjøres iterativt kalles det newtons metode. Vi ønsker å justere $u_-$ slik at:
 \begin{equation}
-	(u, v) + \Delta t \left[((1+\alpha_0u^4)\nabla u, \nabla v) + 
-	\left( h(u-T_s), v \right)_{\partial \Omega}\right] -(u_1, v) = 0
+	F(u) \approx \hat{F}(u) = F(u_-) + F'(u_-)(u-u_-) = 0
+\end{equation}
+Det vi effektivt kommer til å løse er
+\begin{equation}
+	J_{i,j} \delta u = -F(u_-)
+\end{equation}
+for $\delta u$, og så oppdatere $u_-$. 
+\begin{equation}
+	(u, v) + \Delta t \left[(\alpha(u)\nabla u, \nabla v) + 
+	\left( h(u-T_s), v \right)_{\partial \Omega_R} \right] -(u_1, v) = 0
 \end{equation}
 
-Nå antar vi at $u = \sum_{j \in \mc{I}_s} c_j\psi_j$.
+Nå antar vi at $u = \sum_{j \in \mc{I}_s} c_j\psi_j$. Da er $v = \psi_i \ \forall i \in \mc{I}_s$.
 
 Vi må regne ut jacobimatrisen til $F$:
 \begin{equation}
 	J_{i, j} = \frac{\partial F_i}{\partial c_j}
 \end{equation}
 
+Vi gjør så derivasjonen med hensyn på $c_i$:
+\begin{equation}
+	J_{i, j} = (\psi_j, \psi_i) + \Delta t\left[ (\alpha'(u) \psi_j \nabla u, \nabla \psi_i)
+	+ (\alpha(u) \nabla \psi_j, \nabla\psi_i)
+	+ (h\psi_j, \psi_i)_{\partial \Omega_R} \right]
+\end{equation}
+$(u_1, v)$ forsvinner siden den bruker $c$-verdier fra et annet tidssteg.
+
+Nå kjenner vi jacobimatrisen. Vi setter inn de kjente verdiene for $u$ fra forrige tidssteg, og bruker dem som utgangspunkt for newtons metode. Vi kaller disse for $u\_$, og kjører metoden til den har konvergert tilstrekkelig bra. I det siste randleddet kjenner vi $u$, siden den er gitt ved $u = g$. Den endelige jacobimatrisen er dermed:
+\begin{equation}
+		J_{i, j} = (\psi_j, \psi_i) + \Delta t\left[ (\alpha'(u\_) \psi_j \nabla u\_, \nabla \psi_i)
+	+ (\alpha(u\_) \nabla \psi_j, \nabla\psi_i)
+	+ (h\psi_j, \psi_i)_{\partial \Omega_R}\right]
+\end{equation}
 \end{document}

@@ -64,22 +64,19 @@ Gir et eksplisitt numerisk skjema:
 \begin{equation}
 	u^{n+1} = 2u^n - u^{n-1} - \Delta t^2\omega^2 u^n
 \end{equation}
-Dette er en andre ordens lineær differenslikning med kostante koeffisienter. Derfor skal den ha løsninger på formen:
+Siden differenslikningen er homogen med konstante koeffisienter forventer vi en løsning på formen
 \begin{equation}
-	u^n = A^n
+	u = IA^n
 \end{equation}
-Der $A$ er et komplekst tall.
-
-Det er rimelig å anta at det finnes løsninger av denne diskrete likningen har løsninger som likner på løsningen av de kontinuerlige likningene, som er   
+Det er rimelig å anta at det finnes løsninger av denne diskrete likningen som likner på løsningen av de kontinuerlige likningene, som er   
 \begin{equation}
-	u = Ae^{i\omega t}
+	u_e = Ie^{i\omega t}
 \end{equation}
-
 Vi regner med at de diskrete likningene vil ha en lik løsning, men med endret $\omega$. Vi setter inn en $\tilde{\omega}$.
 
 Dette betyr at vi prøver å finne løsninger på formen
 \begin{equation}
-	u^n  =A^n = Ie^{\tilde{\omega}\Delta t n} = I e^{i\tilde{\omega}t}
+	u^n  =IA^n = Ie^{\tilde{\omega}\Delta t n} = I e^{i\tilde{\omega}t}
 \end{equation}
 
 Vi setter dette inn i sentrert differanseoperator, og får:
@@ -94,13 +91,14 @@ Vi finner ut ifra dette, at for at påstanden om at den diskrete løsningen skal
 \begin{equation}
 	\tilde{\omega} = \pm \frac{2}{\Delta t} \sin^{-1} \left(\frac{\omega\Delta t}{2}\right) \geq 1
 \end{equation}
-Dette tallet er alltid større enn 1, som betyr at svingefrekvensen til løsningen av den diskrete likningen er større enn svingefrekvensen til løsningen av den kontinuerlige likningen.
-
-(Tegne opp omtrent hvordan denne grafen ser ut)
+Dette tallet er alltid større enn 1, som betyr at svingefrekvensen til løsningen av den diskrete likningen er større enn svingefrekvensen til løsningen av den kontinuerlige likningen. For å analysere mer på denne likningen ser vi på Taylorutviklingen til 2. orden:
+\begin{equation}
+	\frac{\tilde\omega}{\omega} \approx 1 + \frac{1}{24}p^2
+\end{equation}
 
 For et lite antall tidssteg per svingning, vi lman få en ganske høy frekvens i den diskrete løsningen sammenliknet med den kontinuerlige. Det vil gi fullstendig faseforskyvning av løsningen etterhvert.
 
-Stabilitetskriteriet på dette skjemaet er gitt ved at $\tilde{\omega}$ må være reell for at løsningen ikke skal blåse opp. Da må
+Stabilitetskriteriet på dette skjemaet er gitt ved at $\tilde{\omega}$ må være reell for at amplituden til løsningen ikke skal variere. Da må
 \begin{equation}
 	\frac{\omega\Delta t}{2} \in [-1, 1]
 \end{equation}
@@ -188,15 +186,78 @@ Vi løser likningen for $\tilde{\omega}$:
 
 Vi ser umiddelbart at for $C=1$ at $\tilde{\omega} = \frac{2}{\Delta t}\frac{k\Delta x}{2} = \omega$, slik at den numeriske løsningen er eksakt i meshpunktene. 
 
+Det kan være nyttig å se på hvordan dette påvirker bølgehastighetene $\tilde{c} = \frac{\tilde\omega}{k}$, så vi plotter det. Dette plottet forklarer hvorfor vi gjerne ser artefakter med stygge initialbetingelser.
 
-Si noe om spesialtilfellet $C=1$, og at det tilsvarer en plug-wave som beveger seg et meshpunkt per tidssteg. Mer enn dette vil være kunstig, siden differanseskjemaet ikke ser lengre. 
+\begin{equation}
+	\frac{\tilde{c}}{c} = \frac{1}{C p} \sin^{-1}(\sin p)
+\end{equation}
 
 \subsection{Konsekvenser for artefakter}
 En faktisk initialbetingelse og løsning av bølgelikningen vil være en lineærkombinasjon av mange bølgekomponenter. Dersom man har et Couranttall som er $C<1$ vil korte bølger bevege seg saktere enn lange bølger. Dersom man har brukt mange bølgekomponenter for å bygge opp en form, vil denne formen kunne endre seg siden bølgene den er bygget opp av beveger seg i forskjellig hastigheter. Funksjoner som inneholder diskontinuiteter krever mange korte bølger for å representeres. For initialbetingelse som krever stort innslag av korte bølger, vil man se mye artefakter for store tidssteg. Dette ser man spesielt godt dersom man ser på bølger som skifter medium, siden det ene mediet da nødvendigvis må ha $C \neq 1$
-***Her kan man smelle inn hvordan man finne fourierkoeffisienter***
 
 
 \section{Korreksjonstermer så skjemaet for svingelikning blir $\Delta t^4$}
+Trunkeringsfeilen er det tallet man får når man setter inn den eksakte løsningen $u_e$ i den diskrete likningen $\mc{L}_{\Delta}(u) = 0$: $R = \mc{L}_{\Delta}(u_e)$.  
 
+Trunkeringsfeilanalysen gjøres ved å sette inn taylorutviklingen av de forskjellige leddene i en finite difference. 
+For sentrert differanse $[D_tD_t u]^n$ er det relevant å se på:
+\begin{equation}
+	u(t_n) = u(t_n)
+\end{equation}
+\begin{equation}
+	u(t_{n-1}) = u(t_n)-u'(t_n)\Delta t + \frac{1}{2} u''(t_n)\Delta t^2 - \frac{1}{6}u'''(t_n)\Delta t^3 + \frac{1}{24} u''''(t_n)\Delta t^4 + \mathcal{O}(t^5)
+\end{equation}
+\begin{equation}
+	u(t_{n+1}) = u(t_n)+u'(t_n)\Delta t + \frac{1}{2} u''(t_n)\Delta t^2 + \frac{1}{6}u'''(t_n)\Delta t^3 + \frac{1}{24} u''''(t_n)\Delta t^4 + \mathcal{O}(t^5)
+\end{equation}
+
+Generelt kaller vi nå taylorekspansjonen av $u^n$ for $T_u^n$. Da gjøres trunkeringsanalysen som 
+\begin{equation}
+ 	[D_tD_t u] = \frac{T_u^{n+1} - 2T_u^{n} + T_u^{n-1}}{\Delta t^2} = u''(t_n) + \frac{1}{12}u''''(t_n) \Delta t^2 + \mathcal{O}(\Delta t^4)
+ \end{equation} 
+
+Tanken med et korreksjonsledd er at vi kan legge til et ledd $C$ i likningen slik at
+\begin{equation}
+	[D_tD_t u_e + \omega^2u_e = C+R]^n
+\end{equation}
+Der $R$ er fjerde ordens.
+Ved å derivere på den opprinnelige likningen får vi $u'''' = \omega^4 u$.
+Korreksjonsledde vårt skal kansellere $\frac{1}{12}u''''(t_n)\Delta t^2$. Dermed blir det nye skjemaet
+\begin{equation}
+	[D_t D_t u + \omega^2(1 - \frac{1}{12}\omega^2\Delta t^2)u = 0]
+\end{equation}
 \section{Korreksjonstermer så skjemaet for bølgelikningen blir $\Delta x^4, \Delta t^4$}
+
+Vi ønsker å gjøre tilsvarende for bølgelikningen. Vi tenker oss at vi vil ha et numerisk skjema 
+\begin{equation}
+	[D_t D_t u_e = c^2 D_xD_x u_e + C + R]^n_i
+\end{equation}
+Der $R = \mc{O}(\Delta t^4, \Delta x^4)$.
+
+Fra å skrive ut de endelige differansene slik som i forrige oppgave, får vi at
+\begin{equation}
+	R^n_i + C^n_i = \frac{1}{12} u_{e, tttt}(x_i, t_n)\Delta t^2 - c^2\frac{1}{12} u_{e, xxxx} (x_i, t_n)\Delta x^2 + \mc{O}(\Delta t^4, \Delta x^4)
+\end{equation}
+For at skjemaet skal bli 4. ordens må
+\begin{equation}
+	C = \frac{1}{12} u_{e, tttt}(x_i, t_n)\Delta t^2 - c^2\frac{1}{12} u_{e, xxxx} (x_i, t_n)\Delta x^2
+\end{equation}
+Fra bølgelikningen vet vi at:
+\begin{equation}
+	u_{tttt} = c^2u_{xxtt}
+\end{equation}
+\begin{equation}
+	u_{xxxx} = \frac{1}{c^2} u_{ttxx}
+\end{equation}
+Så antar vi at funksjonene er glatte nok til å skifte rekkefølge på de deriverte, slik at vi kan skrive at:
+\begin{equation}
+	\frac{1}{12} u_{e, tttt}(x_i, t_n)\Delta t^2 - c^2\frac{1}{12} u_{e, xxxx} (x_i, t_n)\Delta x^2 = \frac{1}{12} (c^2\Delta t^2 - \Delta x^2)[D_xD_xD_tD_tu]_i^n
+\end{equation}
+
+Det numeriske skjemaet på operatorform er da:
+\begin{equation}
+	[D_tD_tu = c^2 D_xD_x u + \frac{1}{12} (c^2\Delta t - \Delta x^2) D_xD_xD_tD_tu)]_i^n
+\end{equation}
+
+Så burde man vel egentlig sjekke at den diskretiseringen vi gjør av korreksjonsleddet også er av orden $\Delta t^4$.
 \end{document}

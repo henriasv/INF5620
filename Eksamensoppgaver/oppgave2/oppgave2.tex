@@ -128,10 +128,28 @@ u^{n+1}_{i,j,k} &= - u^{n-1}_{i,j,k}  + 2u^{n}_{i,j,k} + \\
 \end{align*}
 
 \section{Stabilitet i 3D}
+Det er 3 ting jeg vil nevne her:
+\begin{itemize}
+\item Trunkeringsfeil
+\item Fasefeil
+\item Stabilitet
+\end{itemize}
+
+Vi ta kjapt trunkeringsfeilen. Den finner man som residualen i den diskrete likningen når man setter inn taylorutviklingen av den eksakte løsningen for alle kompoenentene i diskretiseringen. Her vil vi stå igjen med feil i orden 2 for alle meshoppløsninger. 
+
+For å se på stabilitet, antar vi at løsningen må være bygget opp av bølgekomponenter som i den analytiske løsningen:
+\begin{equation}
+	u(x, y, z, t) = e^{i(k_x x + k_y y + k_z z - \tilde{\omega}t)}
+\end{equation}
 Stabilitetskriteriet i 3d er:
 \begin{equation}
 	 \Delta t \leq \frac{1}{c \sqrt{ \frac{1}{\Delta x^2} + \frac{1}{\Delta y^2} + \frac{1}{\Delta z^2}}}
 \end{equation}
+Dersom vi antar at $\Delta x = \Delta y = \Delta z$, er stabilitetskriteret
+\begin{equation}
+	C \leq \frac{1}{\sqrt{3}}
+\end{equation}
+der $C = \frac{c \Delta t}{\Delta x}$. Dette kriteriet kommer fra å kreve at $\tilde{\omega}$ skal være reell for at bølgekomponentene ikke skal endre amplitude. 
 
 \section{Verifikasjon}
 Det finnes flere gode måter å verifisere implementasjonen på:
